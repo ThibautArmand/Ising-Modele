@@ -20,6 +20,42 @@ def remplissage_aléatoire_reseau(L):
     """
     return np.random.choice([-1, 1], size=(L, L))
 
+def calculate_H(spins, J = 1.0, h = 0.0):
+    """
+    Parameters
+    ----------
+    spins : [L,L]
+        Réseau de spins
+    J : float, optional
+        The default is 1.0.
+    h : float, optional
+        The default is 0.0.
+
+    Returns
+    -------
+    H: float
+        Énergie
+    """
+    L = spins.shape[0]
+
+    # H - J \sum S_i S_j - h \sum S_i
+    H = 0.0
+    for i in range(L):
+        for j in range(L):
+            s = spins[i, j]
+            # Pairs 
+            # right neighbor
+            # to handle limits
+            # i.e : if j = 0 : (0+1)%8 = 1
+            s_r = spins[i, (j + 1) % L]
+            # bottom neighbor
+            s_b = spins[(i + 1) % L, j]
+            # - J \sum S_i S_j
+            H += -J * s * (s_r + s_b)
+    # remaining expression
+    H += -h * np.sum(spins)
+    return H
+
 
 def MonteCarlo(n,N,Reseau,T):
     #n:nombre de pas (entier naturel)
