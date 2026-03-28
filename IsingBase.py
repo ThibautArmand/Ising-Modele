@@ -34,6 +34,8 @@ def MonteCarlo(n,N,Reseau,T):
 
 N=32 #taille du réseau : N*N
 
+# this is a comment
+
 Reseau=remplissage_aléatoire_reseau(N)
 plt.imshow(Reseau)
 plt.imsave('reseau initial.png', Reseau, cmap='gray')
