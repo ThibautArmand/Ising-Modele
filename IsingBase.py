@@ -6,18 +6,20 @@ Modèle d'Ising,transition de phase,méthode de Monte Carlo
 import numpy as np
 import matplotlib.pyplot as plt
 
-def remplissage_aléatoire_reseau(N):
-    #N:taille du réseau
-    #retourne tableau taille [N,N]
-    tableau=np.empty((N,N),dtype='int8')
-    for i in range(len(tableau)):
-        for j in range(len(tableau[i])):
-            a=np.random.randint(0,2)
-            if a==0:
-                tableau[i][j]=-1
-            elif a==1:
-                tableau[i][j]=1
-    return tableau
+def remplissage_aléatoire_reseau(L):
+    """
+    Parameters
+    ----------
+    L : int8
+        Taille du réseau
+
+    Returns
+    -------
+    tableau : [L,L]
+
+    """
+    return np.random.choice([-1, 1], size=(L, L))
+
 
 def MonteCarlo(n,N,Reseau,T):
     #n:nombre de pas (entier naturel)
