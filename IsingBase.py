@@ -51,11 +51,40 @@ def calculate_H(spins, J = 1.0, h = 0.0):
             # bottom neighbor
             s_b = spins[(i + 1) % L, j]
             # - J \sum S_i S_j
+            # -J s s_{droite} - J s s_{bas}
             H += -J * s * (s_r + s_b)
     # remaining expression
     H += -h * np.sum(spins)
     return H
 
+def calculate_dE(spins, i, j, J=1.0, h=0.0):
+    """
+    Parameters
+    ----------
+    spins : [L,L]
+        Réseau
+    i : int8
+    j : int8
+    J : float, optional
+        The default is 1.0.
+    h : float, optional
+        The default is 0.0.
+
+    Returns
+    -------
+    dE: float
+    """
+    L = spins.shape[0]
+    s = spins[i, j]
+    
+    H_old = calculate_H(spins, J, h)
+    
+    spins_new = spins.copy()
+    spins_new[i, j] *= -1
+    
+    H_new = calculate_H(spins_new, J, h)
+   
+    return H_new - H_old
 
 def MonteCarlo(n,N,Reseau,T):
     #n:nombre de pas (entier naturel)
