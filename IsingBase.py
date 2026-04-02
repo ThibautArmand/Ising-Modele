@@ -6,7 +6,7 @@ Modèle d'Ising,transition de phase,méthode de Monte Carlo
 import numpy as np
 import matplotlib.pyplot as plt
 
-def remplissage_aléatoire_reseau(L):
+def remplissage_aleatoire_reseau(L):
     """
     Parameters
     ----------
@@ -73,10 +73,7 @@ def calculate_dE(spins, i, j, J=1.0, h=0.0):
     Returns
     -------
     dE: float
-    """
-    L = spins.shape[0]
-    s = spins[i, j]
-    
+    """    
     H_old = calculate_H(spins, J, h)
     
     spins_new = spins.copy()
@@ -85,7 +82,6 @@ def calculate_dE(spins, i, j, J=1.0, h=0.0):
     H_new = calculate_H(spins_new, J, h)
    
     return H_new - H_old
-
 
 def MonteCarlo(n,N,Reseau,T):
     """
@@ -119,9 +115,19 @@ def MonteCarlo(n,N,Reseau,T):
     return Reseau
 
 N=32 #taille du réseau : N*N
+n = 10000  # how many steps do we need to equilibrate the system ?
+T_s = [1.0, 1.5, 2.0, 2.5, 3.0, 5.0]
 
-Reseau=remplissage_aléatoire_reseau(N)
-plt.imshow(Reseau)
-plt.imsave('reseau initial.png', Reseau, cmap='gray')
+fig, axes = plt.subplots(1,6,figsize=(10, 10))
+axes = axes.flatten()
+
+for i, T in enumerate(T_s):
+    ax = axes[i]
+    Reseau = Reseau=remplissage_aleatoire_reseau(N)
+    Reseau = MonteCarlo(n, N, Reseau, T)
+    
+    ax.imshow(Reseau)
+    ax.set_title(f'T = {T}')
+plt.savefig('ising_base.pdf', bbox_inches='tight')
 plt.show()
 
