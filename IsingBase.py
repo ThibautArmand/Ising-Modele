@@ -86,22 +86,39 @@ def calculate_dE(spins, i, j, J=1.0, h=0.0):
    
     return H_new - H_old
 
+
 def MonteCarlo(n,N,Reseau,T):
-    #n:nombre de pas (entier naturel)
-    #N:taille du reseau (entier naturel)
-    #Reseau: tableau 2D de taille N*N
-    #T: température (float)
-    #retourne un tableau 2D
+    """
+    Parameters
+    ----------
+    n : int8
+        Nombre de pas (entier naturel).
+    N : int8
+        Taille du reseau (entier naturel)
+    Reseau : [N,N]
+        Tableau 2D de taille N*N
+    T : float
+        Température
+    Returns
+    -------
+    Reseau : [N,N]
+
+    """
     J=1
     h=0
-    for i in range (n):
-        x=np.random.randint(0,N+1)
-        y=np.random.randint(0,N+1)
-        
+
+    i_s=np.random.randint(0,N, size=n)
+    j_s=np.random.randint(0,N, size=n)
+    r_s = np.random.rand(n)
+
+    for k in range (n):
+        i, j, r = i_s[k], j_s[k], r_s[k]
+        dE = calculate_dE(Reseau, i, j, J, h)
+        if dE <= 0 or r < np.exp(-dE / T):
+            Reseau[i, j] *= -1 
+    return Reseau
 
 N=32 #taille du réseau : N*N
-
-# this is a comment
 
 Reseau=remplissage_aléatoire_reseau(N)
 plt.imshow(Reseau)
