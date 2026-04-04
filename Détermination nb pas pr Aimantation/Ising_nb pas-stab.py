@@ -108,6 +108,6 @@ for i, T in enumerate(T_s):
     
     ax.imshow(Reseau)
     ax.set_title(f'T = {T}')
-plt.savefig('ising_base.pdf', bbox_inches='tight')
+plt.savefig('ising_aimantation stabilisée.pdf', bbox_inches='tight')
 plt.show()
 
