@@ -1,5 +1,6 @@
 # Modèle d’Ising, transition de phase, méthode de Monte Carlo
 
+![CI Status](https://github.com/VOTRE_USERNAME/Ising-Modele/workflows/Python%20CI/badge.svg)
 Une implémentation en Python du modèle d’Ising utilisant des méthodes de Monte Carlo pour le cours de Physique Numérique LU3PY124 2025-26.
 
 ## Installation
