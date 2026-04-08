@@ -155,14 +155,14 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
 
 
 # Paramètres
-Ls = [4, 8, 16]  # Tailles du système
+Ls = [4, 8, 16, 32, 64]  # Tailles du système
 Tc = 2.269  # Température critique théorique
 
 # Températures autour de Tc
 T_s = np.linspace(2.0, 3.0, 10)
 
 # Paramètres de simulation
-n_equilibration = 1000  # Pas d'équilibration
+n_equilibration = 100  # Pas d'équilibration
 n_measurements = 500    # Nombre de mesures
 
 # Stockage
@@ -190,7 +190,6 @@ for L in Ls:
         if (i+1) % 5 == 0:
             print(f"  progress: {i+1}/{len(T_s)} températures")
     
-    print(f"  Terminé pour L = {L}\n")
 
 # Conversion en arrays numpy
 for L in Ls:
