@@ -12,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
     remplissage_aleatoire_reseau,
+    calculate_magnetization,
+    theoretical_magnetization,
     MonteCarlo
 )
 
@@ -45,45 +47,6 @@ def calculate_total_energy(Reseau, J=1.0, h=0.0):
             E += -J * S * voisins - h * S
     return E
 
-def calculate_magnetization(Reseau):
-    """
-    Calcule l'aimantation totale du système
-    
-    Parameters
-    ----------
-    Reseau : array [L,L]
-        Réseau de spins
-    
-    Returns
-    -------
-    M : float
-        Aimantation totale
-    """
-    return np.sum(Reseau)
-
-def theoretical_magnetization(T, Tc=2.269, J=1.0):
-    """
-    Calcule l'aimantation théorique (solution d'Onsager)
-    
-    Parameters
-    ----------
-    T : float or array
-        Température
-    Tc : float
-        Température critique
-    J : float
-        Constante d'échange
-    
-    Returns
-    -------
-    m : float or array
-        Aimantation théorique par spin
-    """
-    T = np.array(T)
-    m = np.zeros_like(T)
-    mask = T < Tc
-    m[mask] = (1 - np.sinh(-4 * 2*J / T[mask])**(-4))**(1/8)
-    return m
 
 def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
@@ -155,14 +118,14 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
 
 
 # Paramètres
-Ls = [4, 8, 16, 32, 64]  # Tailles du système
+Ls = [4, 8, 16]  # Tailles du système
 Tc = 2.269  # Température critique théorique
 
 # Températures autour de Tc
 T_s = np.linspace(2.0, 3.0, 10)
 
 # Paramètres de simulation
-n_equilibration = 100  # Pas d'équilibration
+n_equilibration = 10  # Pas d'équilibration
 n_measurements = 500    # Nombre de mesures
 
 # Stockage
@@ -200,8 +163,8 @@ for L in Ls:
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-## TODO: Review
-colors = plt.cm.viridis(np.linspace(0, 1, len(Ls)))
+# color palette
+colors = plt.cm.viridis(np.linspace(0, 1, len(Ls))) # [violet, vert, jaune, ...]
 
 # 1. Énergie par spin
 ax = axes[0, 0]
@@ -222,7 +185,7 @@ for i, L in enumerate(Ls):
             color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
 # Courbe théorique
 m_theo = theoretical_magnetization(T_s, Tc)
-ax.plot(T_s, m_theo, 'k--', linewidth=2.5, label='Théorie (Onsager)')
+ax.plot(T_s, m_theo, 'k--', linewidth=2.5, label='Théorie')
 ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
 ax.set_xlabel('T', fontsize=12)
 ax.set_ylabel('$\\langle |m| \\rangle$', fontsize=12)

@@ -95,3 +95,40 @@ def MonteCarlo(n,N,Reseau,T):
             if np.random.rand() < np.exp(-dE / T):
                 Reseau[i_s, j_s] *= -1
     return Reseau
+
+def theoretical_magnetization(T, Tc=2.269, J=1.0):
+    """
+    Parameters
+    ----------
+    T : float or array
+        Température
+    Tc : float
+        Température critique
+    J : float
+        Constante d'échange
+    
+    Returns
+    -------
+    m : float or array
+    """
+    T = np.array(T)
+    m = np.zeros_like(T)
+    mask = T < Tc
+    m[mask] = (1 - np.sinh(2*J / T[mask])**(-4))**(1/8)
+    return m
+
+def calculate_magnetization(Reseau):
+    """
+    Calcule l'aimantation totale du système
+    
+    Parameters
+    ----------
+    Reseau : array [L,L]
+        Réseau de spins
+    
+    Returns
+    -------
+    M : float
+        Aimantation totale
+    """
+    return np.sum(Reseau)
