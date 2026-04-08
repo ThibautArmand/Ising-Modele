@@ -27,14 +27,22 @@ axes = axes.flatten()
 for i, T in enumerate(T_s):
     ax = axes[i]
     Reseau = remplissage_aleatoire_reseau(N)
+    
+    # Evolution de l'aimantation
     m_T=np.zeros(1)
     m_T[0]=np.abs(np.mean(Reseau))
+
     for k in range(5):
         Reseau = MonteCarlo(n, N, Reseau, T)
         m_T=np.append(m_T,np.abs(np.mean(Reseau)))
-    while(1.05*m_T[-1]<m_T[-2] or 0.95*m_T[-1]>m_T[-2] or 1.05*m_T[-1]<m_T[-3] or 0.95*m_T[-1]>m_T[-3]):
-       Reseau = MonteCarlo(n, N, Reseau, T)
-       m_T=np.append(m_T,np.abs(np.mean(Reseau))) 
+
+    # Continuer tant que l'aimantation varie plus du 5 % 
+    ## m_T[-1] is closer to m_T[-2] OR
+    ## m_T[-1] is closer to m_T[-3]
+    while ( abs(m_T[-1] - m_T[-2]) > 0.05 * abs(m_T[-2]) or 
+            abs(m_T[-1] - m_T[-3]) > 0.05 * abs(m_T[-3])):
+        Reseau = MonteCarlo(n, N, Reseau, T)
+        m_T=np.append(m_T,np.abs(np.mean(Reseau)))
     
     m.append(m_T)
     ax.imshow(Reseau)
