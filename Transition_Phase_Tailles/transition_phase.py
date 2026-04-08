@@ -14,43 +14,12 @@ from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_magnetization,
     theoretical_magnetization,
+    calculate_total_energy,
     MonteCarlo
 )
 
-
-# TODO: Re work with `calculate_H`
-def calculate_total_energy(Reseau, J=1.0, h=0.0):
-    """
-    Calcule l'énergie totale du système
-    
-    Parameters
-    ----------
-    Reseau : array [L,L]
-        Réseau de spins
-    J : float
-        Constante d'échange
-    h : float
-        Champ magnétique appliqué
-    
-    Returns
-    -------
-    E : float
-        Énergie totale
-    """
-    L = Reseau.shape[0]
-    E = 0.0
-    for i in range(L):
-        for j in range(L):
-            # Interaction avec les premiers voisins (éviter le double comptage)
-            S = Reseau[i, j]
-            voisins = Reseau[(i+1) % L, j] + Reseau[i, (j+1) % L]
-            E += -J * S * voisins - h * S
-    return E
-
-
 def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
-    Simule le système d'Ising à une température donnée
     Parameters
     ----------
     L : int
@@ -65,11 +34,9 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
         Constante d'échange
     h : float
         Champ magnétique appliqué
-    
     Returns
     -------
     results : dict
-        Dictionnaire contenant les grandeurs physiques moyennes
     """
     N = L**2
     Reseau = remplissage_aleatoire_reseau(L)
@@ -118,20 +85,18 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
 
 
 # Paramètres
-Ls = [4, 8, 16]  # Tailles du système
+Ls = [4, 8, 16, 32, 64]  # Tailles du système
 Tc = 2.269  # Température critique théorique
 
 # Températures autour de Tc
 T_s = np.linspace(2.0, 3.0, 10)
 
 # Paramètres de simulation
-n_equilibration = 10  # Pas d'équilibration
+n_equilibration = 100   # Pas d'équilibration
 n_measurements = 500    # Nombre de mesures
 
 # Stockage
 results = {}
-
-print(f"Tailles: {Ls}")
 
 for L in Ls:
     print(f"L = {L}...")
@@ -152,7 +117,6 @@ for L in Ls:
         
         if (i+1) % 5 == 0:
             print(f"  progress: {i+1}/{len(T_s)} températures")
-    
 
 # Conversion en arrays numpy
 for L in Ls:
@@ -219,6 +183,5 @@ ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('../results/transition_phase_tailles.pdf', format='pdf', dpi=300, bbox_inches='tight')
-
 plt.show()
 

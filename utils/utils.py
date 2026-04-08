@@ -119,8 +119,6 @@ def theoretical_magnetization(T, Tc=2.269, J=1.0):
 
 def calculate_magnetization(Reseau):
     """
-    Calcule l'aimantation totale du système
-    
     Parameters
     ----------
     Reseau : array [L,L]
@@ -132,3 +130,26 @@ def calculate_magnetization(Reseau):
         Aimantation totale
     """
     return np.sum(Reseau)
+
+def calculate_total_energy(Reseau, J=1.0, h=0.0):
+    """
+    Parameters
+    ----------
+    Reseau : array [L,L]
+        Réseau de spins
+    J : float
+        Constante d'échange
+    h : float
+        Champ magnétique appliqué
+    
+    Returns
+    -------
+    E : float
+        Énergie totale
+    """
+    L = Reseau.shape[0]
+    E = 0.0
+    for i in range(L):
+        for j in range(L):
+            E += calculate_H(Reseau, i, j, J, h)
+    return E
