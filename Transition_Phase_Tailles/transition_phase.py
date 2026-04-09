@@ -89,10 +89,10 @@ Ls = [4, 8, 16, 32, 64]  # Tailles du système
 Tc = 2.269  # Température critique théorique
 
 # Températures autour de Tc
-T_s = np.linspace(2.0, 3.0, 10)
+T_s = np.linspace(1.0, 4.0, 20)
 
 # Paramètres de simulation
-n_equilibration = 100   # Pas d'équilibration
+n_equilibration = 500   # Pas d'équilibration
 n_measurements = 500    # Nombre de mesures
 
 # Stockage
