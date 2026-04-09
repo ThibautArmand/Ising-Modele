@@ -70,11 +70,11 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
     # Aimantation par spin
     m = M_mean / N
     
-    # Chaleur spécifique : C = (1/kT²) * (<E²> - <E>²) / N
-    C = (E2_mean - E_mean**2) / (N * T**2)
-    
-    # Susceptibilité magnétique : χ = (1/kT) * (<M²> - <M>²) / N
-    chi = (M2_mean - M_mean**2) / (N * T)
+    # Susceptibilité magnétique χ(T)
+    chi = (N / T) * (M2_mean - M_mean**2) 
+
+    # Chaleur spécifique  C(T)
+    C = (1 / (T**2)) * (E2_mean - E_mean**2)
     
     return {
         'energie_per_spin': e,
