@@ -65,7 +65,7 @@ def calculate_dE(Reseau, i, j, J, h):
     dE = -2*calculate_H(Reseau, i, j, J, h)  
     return dE
 
-def MonteCarlo(n,N,Reseau,T):
+def MonteCarlo(n,N,Reseau,T,J,h):
     """
     Parameters
     ----------
@@ -77,13 +77,15 @@ def MonteCarlo(n,N,Reseau,T):
         Tableau 2D de taille N*N
     T : float
         Température
+    J : float
+        constante d'échange
+    h : float
+        champ magnétique extérieur
     Returns
     -------
     Reseau : [N,N]
 
     """
-    J=1
-    h=0
 
     for k in range (n):
         i_s=np.random.randint(0,N)
