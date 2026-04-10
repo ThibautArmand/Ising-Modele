@@ -16,7 +16,7 @@ from utils.utils import (
     MonteCarlo
 )
 
-N=32 #taille du réseau : N*N
+N=64 #taille du réseau : N*N
 n = N**2 #definit un pas de MonteCarlo
 J=1 #constante d'échange
 h=0 #champ magnétique extérieur

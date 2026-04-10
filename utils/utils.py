@@ -3,7 +3,9 @@
 Shared utility functions for the Ising model simulation.
 """
 import numpy as np
+from numba import njit
 
+#@njit
 def remplissage_aleatoire_reseau(L):
     """
     Parameters
@@ -17,7 +19,7 @@ def remplissage_aleatoire_reseau(L):
 
     """
     return np.random.choice([-1, 1], size=(L, L))
-
+@njit
 def calculate_H(Reseau, i, j, J, h):
     """
     Parameters
@@ -44,7 +46,7 @@ def calculate_H(Reseau, i, j, J, h):
         Reseau[i,(j+1)%C]
         ) - h) * Reseau[i,j]
     return H
-
+@njit
 def calculate_dE(Reseau, i, j, J, h):
     """
     Parameters
@@ -64,7 +66,7 @@ def calculate_dE(Reseau, i, j, J, h):
     """    
     dE = -2*calculate_H(Reseau, i, j, J, h)  
     return dE
-
+@njit
 def MonteCarlo(n,N,Reseau,T,J,h):
     """
     Parameters
@@ -97,7 +99,7 @@ def MonteCarlo(n,N,Reseau,T,J,h):
             if np.random.rand() < np.exp(-dE / T):
                 Reseau[i_s, j_s] *= -1
     return Reseau
-
+@njit
 def theoretical_magnetization(T, Tc=2.269, J=1.0):
     """
     Parameters
@@ -118,7 +120,7 @@ def theoretical_magnetization(T, Tc=2.269, J=1.0):
     mask = T < Tc
     m[mask] = (1 - np.sinh(2*J / T[mask])**(-4))**(1/8)
     return m
-
+@njit
 def calculate_magnetization(Reseau):
     """
     Parameters
@@ -132,7 +134,7 @@ def calculate_magnetization(Reseau):
         Aimantation totale
     """
     return np.sum(Reseau)
-
+@njit
 def calculate_total_energy(Reseau, J=1.0, h=0.0):
     """
     Parameters
