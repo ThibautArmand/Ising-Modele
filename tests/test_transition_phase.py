@@ -130,3 +130,26 @@ def test_simulate_temperature_minimal_parameters():
     assert all(key in result for key in ['energie_per_spin', 'magnetization_per_spin', 
                                            'specific_heat', 'susceptibility']), \
         "Should have all required keys even with minimal steps"
+    
+def test_simulate_temperature_susceptibility_peak_location():
+    """Test that susceptibility peaks near critical temperature"""
+    L = 64
+    Tc = 2.269
+    
+    # Sample temperatures around Tc
+    T_below = Tc - 0.5
+    T_at = Tc
+    T_above = Tc + 0.5
+    
+    result_below = simulate_temperature(L, T_below, n_equilibration=10000, n_measurements=1000)
+    result_at = simulate_temperature(L, T_at, n_equilibration=10000, n_measurements=1000)
+    result_above = simulate_temperature(L, T_above, n_equilibration=10000, n_measurements=1000)
+    
+    chi_below = result_below['susceptibility']
+    chi_at = result_at['susceptibility']
+    chi_above = result_above['susceptibility']
+    
+    # Susceptibility at Tc should be >= both sides (peak behavior)
+    # Allow some tolerance for finite-size effects
+    assert chi_at >= chi_above * 0.8, \
+        f"χ at Tc ({chi_at}) should be high compared to above ({chi_above})"

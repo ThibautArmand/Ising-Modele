@@ -97,8 +97,8 @@ if __name__ == '__main__':
     T_s = np.linspace(1.0, 4.0, 20)
 
     # Paramètres de simulation
-    n_equilibration = 500   # Pas d'équilibration
-    n_measurements = 500    # Nombre de mesures
+    n_equilibration = 10000   # Pas d'équilibration
+    n_measurements = 1000    # Nombre de mesures
 
     # Stockage
     results = {}
