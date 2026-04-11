@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from numba import njit
 from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_magnetization,
@@ -20,6 +21,7 @@ from utils.utils import (
     format_time
 )
 
+@njit
 def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
     Parameters
@@ -38,7 +40,11 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
         Champ magnétique appliqué
     Returns
     -------
-    results : dict
+    tuple : (e, m, C, chi)
+        e : float - Énergie par spin
+        m : float - Aimantation par spin
+        C : float - Chaleur spécifique
+        chi : float - Susceptibilité magnétique
     """
     N = L**2
     Reseau = remplissage_aleatoire_reseau(L)
@@ -47,18 +53,13 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
     for _ in range(n_equilibration):
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)
     
-    energies = []
-    magnetizations = []
+    energies = np.empty(n_measurements, dtype=np.float64)
+    magnetizations = np.empty(n_measurements, dtype=np.float64)
     
-    for _ in range(n_measurements):
+    for i in range(n_measurements):
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        E = calculate_total_energy(Reseau, J, h)
-        M = calculate_magnetization(Reseau)
-        energies.append(E)
-        magnetizations.append(np.abs(M))  # On prend la valeur absolue
-    
-    energies = np.array(energies)
-    magnetizations = np.array(magnetizations)
+        energies[i] = calculate_total_energy(Reseau, J, h)
+        magnetizations[i] = np.abs(calculate_magnetization(Reseau))
     
     # Calcul des moyennes et fluctuations
     E_mean = np.mean(energies)
@@ -78,12 +79,7 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
     # Chaleur spécifique  C(T)
     C = (1 / (T**2)) * (E2_mean - E_mean**2)
     
-    return {
-        'energie_per_spin': e,
-        'magnetization_per_spin': m,
-        'specific_heat': C,
-        'susceptibility': chi
-    }
+    return (e, m, C, chi)
 
 
 if __name__ == '__main__':
@@ -114,11 +110,11 @@ if __name__ == '__main__':
         }
         
         for i, T in enumerate(T_s):
-            res = simulate_temperature(L, T, n_equilibration, n_measurements)
-            results[L]['energie'].append(res['energie_per_spin'])
-            results[L]['magnetization'].append(res['magnetization_per_spin'])
-            results[L]['specific_heat'].append(res['specific_heat'])
-            results[L]['susceptibility'].append(res['susceptibility'])
+            e, m, C, chi = simulate_temperature(L, T, n_equilibration, n_measurements)
+            results[L]['energie'].append(e)
+            results[L]['magnetization'].append(m)
+            results[L]['specific_heat'].append(C)
+            results[L]['susceptibility'].append(chi)
             
             if (i+1) % 5 == 0:
                 print(f"  progress: {i+1}/{len(T_s)} températures")

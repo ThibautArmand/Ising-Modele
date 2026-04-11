@@ -106,15 +106,10 @@ def animate(frame):
     T = T_s[frame]
     N = L**2
     
-    results = simulate_temperature(L, T, n_equilibration, n_measurements, J, h)
+    e, m, C, chi = simulate_temperature(L, T, n_equilibration, n_measurements, J, h)
     
     for _ in range(n_equilibration):
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-    
-    e = results['energie_per_spin']
-    m = results['magnetization_per_spin']
-    C = results['specific_heat']
-    chi = results['susceptibility']
     
     im.set_array(Reseau)
     title_text.set_text(f'T = {T:.3f} K (Frame {frame+1}/{len(T_s)})')
