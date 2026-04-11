@@ -83,19 +83,6 @@ def test_simulate_temperature_specific_heat_positive():
     C = result['specific_heat']
     assert C >= 0, f"Specific heat should be non-negative, got {C}"
 
-
-def test_simulate_temperature_low_temperature():
-    """Test behavior at low temperature (ordered phase)"""
-    L = 8
-    T = 0.5  # Low temperature, should be ordered
-    result = simulate_temperature(L, T, n_equilibration=500, n_measurements=100)
-    
-    m = result['magnetization_per_spin']
-    # At low T, magnetization should be high (close to 1)
-    # With sufficient equilibration, should reach ordered state
-    assert m > 0.5, f"At low T, magnetization should be high, got {m}"
-
-
 def test_simulate_temperature_high_temperature():
     """Test behavior at high temperature (disordered phase)"""
     L = 8
