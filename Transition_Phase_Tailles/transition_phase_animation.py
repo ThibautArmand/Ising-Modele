@@ -23,7 +23,7 @@ from transition_phase import simulate_temperature
 L = 64  # Taille du réseau
 T_s = np.linspace(1.0, 40.0, 50) 
 n_equilibration = 10000 
-n_measurements = 100
+n_measurements = 1000
 J = 1.0
 h = 0.0
 Tc = 2.269  # Température critique
@@ -143,7 +143,6 @@ def animate(frame):
     if len(susceptibilities) > 1:
         ax_chi.set_ylim(0, max(susceptibilities) * 1.1)
     
-    # Affichage de la progression
     if (frame + 1) % 5 == 0 or frame == 0:
         print(f"  Frame {frame+1}/{len(T_s)} - T = {T:.3f} K")
     
@@ -151,7 +150,7 @@ def animate(frame):
             heat_marker, heat_line, chi_marker, chi_line]
 
 output_file = '../results/phase_transition_animation.mp4'
-print(f"\nSauvegarde de l'animation vers {output_file} ...")
+print(f"\nStarting animation {output_file} ...")
 
 anim = animation.FuncAnimation(
     fig, animate, frames=len(T_s), 
@@ -166,9 +165,9 @@ try:
               fps=10,  # 10 frames par seconde
               dpi=150,
               extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
-    print(f"\n✓ Animation sauvegardée avec succès: {output_file}")
+    print(f"\n✓ Finished :D {output_file}")
 except Exception as e:
-    print(f"\n✗ Erreur lors de la sauvegarde: {e}")
+    print(f"\n✗ Error D: {e}")
 plt.show()
 
 time_end = time.time()
