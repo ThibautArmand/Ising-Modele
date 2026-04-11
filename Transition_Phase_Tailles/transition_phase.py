@@ -19,7 +19,6 @@ from utils.utils import (
     MonteCarlo,
     format_time
 )
-temps_init = time.time()
 
 def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
@@ -87,108 +86,111 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
     }
 
 
-# Paramètres
-Ls = [4, 8, 16, 32, 64]  # Tailles du système
-Tc = 2.269  # Température critique théorique
-
-# Températures autour de Tc
-T_s = np.linspace(1.0, 4.0, 20)
-
-# Paramètres de simulation
-n_equilibration = 500   # Pas d'équilibration
-n_measurements = 500    # Nombre de mesures
-
-# Stockage
-results = {}
-
-for L in Ls:
-    print(f"L = {L}...")
-    results[L] = {
-        'T_s': T_s,
-        'energie': [],
-        'magnetization': [],
-        'specific_heat': [],
-        'susceptibility': []
-    }
+if __name__ == '__main__':
+    temps_init = time.time()
     
-    for i, T in enumerate(T_s):
-        res = simulate_temperature(L, T, n_equilibration, n_measurements)
-        results[L]['energie'].append(res['energie_per_spin'])
-        results[L]['magnetization'].append(res['magnetization_per_spin'])
-        results[L]['specific_heat'].append(res['specific_heat'])
-        results[L]['susceptibility'].append(res['susceptibility'])
+    # Paramètres
+    Ls = [4, 8, 16, 32, 64]  # Tailles du système
+    Tc = 2.269  # Température critique théorique
+
+    # Températures autour de Tc
+    T_s = np.linspace(1.0, 4.0, 20)
+
+    # Paramètres de simulation
+    n_equilibration = 500   # Pas d'équilibration
+    n_measurements = 500    # Nombre de mesures
+
+    # Stockage
+    results = {}
+
+    for L in Ls:
+        print(f"L = {L}...")
+        results[L] = {
+            'T_s': T_s,
+            'energie': [],
+            'magnetization': [],
+            'specific_heat': [],
+            'susceptibility': []
+        }
         
-        if (i+1) % 5 == 0:
-            print(f"  progress: {i+1}/{len(T_s)} températures")
+        for i, T in enumerate(T_s):
+            res = simulate_temperature(L, T, n_equilibration, n_measurements)
+            results[L]['energie'].append(res['energie_per_spin'])
+            results[L]['magnetization'].append(res['magnetization_per_spin'])
+            results[L]['specific_heat'].append(res['specific_heat'])
+            results[L]['susceptibility'].append(res['susceptibility'])
+            
+            if (i+1) % 5 == 0:
+                print(f"  progress: {i+1}/{len(T_s)} températures")
 
-# Conversion en arrays numpy
-for L in Ls:
-    results[L]['energie'] = np.array(results[L]['energie'])
-    results[L]['magnetization'] = np.array(results[L]['magnetization'])
-    results[L]['specific_heat'] = np.array(results[L]['specific_heat'])
-    results[L]['susceptibility'] = np.array(results[L]['susceptibility'])
+    # Conversion en arrays numpy
+    for L in Ls:
+        results[L]['energie'] = np.array(results[L]['energie'])
+        results[L]['magnetization'] = np.array(results[L]['magnetization'])
+        results[L]['specific_heat'] = np.array(results[L]['specific_heat'])
+        results[L]['susceptibility'] = np.array(results[L]['susceptibility'])
 
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-# color palette
-colors = plt.cm.viridis(np.linspace(0, 1, len(Ls))) # [violet, vert, jaune, ...]
+    # color palette
+    colors = plt.cm.viridis(np.linspace(0, 1, len(Ls))) # [violet, vert, jaune, ...]
 
-# 1. Énergie par spin
-ax = axes[0, 0]
-for i, L in enumerate(Ls):
-    ax.plot(T_s, results[L]['energie'], 'o-', 
-            color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
-ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
-ax.set_xlabel('T', fontsize=12)
-ax.set_ylabel('$\\langle e \\rangle$', fontsize=12)
-ax.set_title('Énergie par spin', fontsize=13)
-ax.legend()
-ax.grid(True, alpha=0.3)
+    # 1. Énergie par spin
+    ax = axes[0, 0]
+    for i, L in enumerate(Ls):
+        ax.plot(T_s, results[L]['energie'], 'o-', 
+                color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
+    ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+    ax.set_xlabel('T', fontsize=12)
+    ax.set_ylabel('$\\langle e \\rangle$', fontsize=12)
+    ax.set_title('Énergie par spin', fontsize=13)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
 
-# 2. Aimantation par spin
-ax = axes[0, 1]
-for i, L in enumerate(Ls):
-    ax.plot(T_s, results[L]['magnetization'], 'o-', 
-            color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
-# Courbe théorique
-m_theo = theoretical_magnetization(T_s, Tc)
-ax.plot(T_s, m_theo, 'k--', linewidth=2.5, label='Théorie')
-ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
-ax.set_xlabel('T', fontsize=12)
-ax.set_ylabel('$\\langle |m| \\rangle$', fontsize=12)
-ax.set_title('Aimantation par spin', fontsize=13)
-ax.legend()
-ax.grid(True, alpha=0.3)
+    # 2. Aimantation par spin
+    ax = axes[0, 1]
+    for i, L in enumerate(Ls):
+        ax.plot(T_s, results[L]['magnetization'], 'o-', 
+                color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
+    # Courbe théorique
+    m_theo = theoretical_magnetization(T_s, Tc)
+    ax.plot(T_s, m_theo, 'k--', linewidth=2.5, label='Théorie')
+    ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+    ax.set_xlabel('T', fontsize=12)
+    ax.set_ylabel('$\\langle |m| \\rangle$', fontsize=12)
+    ax.set_title('Aimantation par spin', fontsize=13)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
 
-# 3. Chaleur spécifique
-ax = axes[1, 0]
-for i, L in enumerate(Ls):
-    ax.plot(T_s, results[L]['specific_heat'], 'o-', 
-            color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
-ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
-ax.set_xlabel('T', fontsize=12)
-ax.set_ylabel('$C$', fontsize=12)
-ax.set_title('Chaleur spécifique', fontsize=13)
-ax.legend()
-ax.grid(True, alpha=0.3)
+    # 3. Chaleur spécifique
+    ax = axes[1, 0]
+    for i, L in enumerate(Ls):
+        ax.plot(T_s, results[L]['specific_heat'], 'o-', 
+                color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
+    ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+    ax.set_xlabel('T', fontsize=12)
+    ax.set_ylabel('$C$', fontsize=12)
+    ax.set_title('Chaleur spécifique', fontsize=13)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
 
-# 4. Susceptibilité magnétique
-ax = axes[1, 1]
-for i, L in enumerate(Ls):
-    ax.plot(T_s, results[L]['susceptibility'], 'o-', 
-            color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
-ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
-ax.set_xlabel('T', fontsize=12)
-ax.set_ylabel('$\\chi$', fontsize=12)
-ax.set_title('Susceptibilité magnétique', fontsize=13)
-ax.legend()
-ax.grid(True, alpha=0.3)
+    # 4. Susceptibilité magnétique
+    ax = axes[1, 1]
+    for i, L in enumerate(Ls):
+        ax.plot(T_s, results[L]['susceptibility'], 'o-', 
+                color=colors[i], label=f'L = {L}', linewidth=1.5, markersize=4)
+    ax.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+    ax.set_xlabel('T', fontsize=12)
+    ax.set_ylabel('$\\chi$', fontsize=12)
+    ax.set_title('Susceptibilité magnétique', fontsize=13)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
 
-plt.tight_layout()
-plt.savefig('../results/transition_phase_tailles.pdf', format='pdf', dpi=300, bbox_inches='tight')
-plt.show()
+    plt.tight_layout()
+    plt.savefig('../results/transition_phase_tailles.pdf', format='pdf', dpi=300, bbox_inches='tight')
+    plt.show()
 
-temps_end = time.time()
-temps_diff = temps_end - temps_init
-print(f"Temps d'exécution : {format_time(temps_diff)}")
+    temps_end = time.time()
+    temps_diff = temps_end - temps_init
+    print(f"Temps d'exécution : {format_time(temps_diff)}")
 

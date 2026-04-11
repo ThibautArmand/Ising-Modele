@@ -72,6 +72,7 @@ def calculate_dE(Reseau, i, j, J, h):
     """    
     dE = -2*calculate_H(Reseau, i, j, J, h)  
     return dE
+
 @njit
 def MonteCarlo(n,N,Reseau,T,J,h):
     """
@@ -105,12 +106,13 @@ def MonteCarlo(n,N,Reseau,T,J,h):
             if np.random.rand() < np.exp(-dE / T):
                 Reseau[i_s, j_s] *= -1
     return Reseau
+
 @njit
 def theoretical_magnetization(T, Tc=2.269, J=1.0):
     """
     Parameters
     ----------
-    T : float or array
+    T : array
         Température
     Tc : float
         Température critique
@@ -119,13 +121,13 @@ def theoretical_magnetization(T, Tc=2.269, J=1.0):
     
     Returns
     -------
-    m : float or array
+    m : array
     """
-    T = np.array(T)
     m = np.zeros_like(T)
     mask = T < Tc
     m[mask] = (1 - np.sinh(2*J / T[mask])**(-4))**(1/8)
     return m
+
 @njit
 def calculate_magnetization(Reseau):
     """
@@ -140,6 +142,7 @@ def calculate_magnetization(Reseau):
         Aimantation totale
     """
     return np.sum(Reseau)
+
 @njit
 def calculate_total_energy(Reseau, J=1.0, h=0.0):
     """
