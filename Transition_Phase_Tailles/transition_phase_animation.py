@@ -3,6 +3,7 @@
 Modèle d'Ising - Animation de l'évolution du réseau en fonction de la température
 """
 
+import time
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -12,80 +13,157 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from utils.utils import (
     remplissage_aleatoire_reseau,
-    calculate_magnetization,
-    MonteCarlo
+    theoretical_magnetization,
+    MonteCarlo,
+    format_time
 )
+from transition_phase import simulate_temperature
 
 # Paramètres
 L = 64  # Taille du réseau
-T_s = np.linspace(1.0, 4.0, 10) 
-n_equilibration = 5000  # Pas d'équilibration par température
+T_s = np.linspace(1.0, 40.0, 50) 
+n_equilibration = 10000 
+n_measurements = 100
 J = 1.0
 h = 0.0
 Tc = 2.269  # Température critique
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+time_init = time.time()
+
+fig = plt.figure(figsize=(16, 12))
+gs = fig.add_gridspec(4, 2, width_ratios=[1, 1], hspace=0.3, wspace=0.3)
+
+ax_lattice = fig.add_subplot(gs[:, 0])
 Reseau = remplissage_aleatoire_reseau(L)
 
-im = ax1.imshow(Reseau, vmin=-1, vmax=1, interpolation='nearest')
-title_text = ax1.set_title(f'T = {T_s[0]:.3f} K', fontsize=16, fontweight='bold')
-ax1.axis('off')
-cbar = plt.colorbar(im, ax=ax1, fraction=0.046, pad=0.04)
+im = ax_lattice.imshow(Reseau, vmin=-1, vmax=1, interpolation='nearest')
+title_text = ax_lattice.set_title(f'T = {T_s[0]:.3f} K', fontsize=16)
+ax_lattice.axis('off')
+cbar = plt.colorbar(im, ax=ax_lattice, fraction=0.046, pad=0.04)
 cbar.set_label('Spin', fontsize=12)
 
-ax2.axvline(Tc, color='red', linestyle='--', linewidth=2.5, label=f'$T_c$ = {Tc:.3f} K', alpha=0.7)
-ax2.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
-ax2.set_ylim(0, 1.05)
-ax2.set_xlabel('Température (K)', fontsize=14)
-ax2.set_ylabel('$|m|$ (Aimantation par spin)', fontsize=14)
-ax2.set_title('Évolution de l\'aimantation', fontsize=16, fontweight='bold')
-temp_marker, = ax2.plot([], [], 'o', color='darkblue', markersize=12, 
-                         markeredgecolor='white', markeredgewidth=2, zorder=5)
-mag_line, = ax2.plot([], [], '-', color='darkblue', linewidth=3, alpha=0.8)
-ax2.legend(fontsize=12, loc='upper right')
-ax2.grid(True, alpha=0.3, linestyle='--')
+# 1. Énergie par spin
+ax_energy = fig.add_subplot(gs[0, 1])
+ax_energy.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+ax_energy.set_ylabel('$\\langle e \\rangle$', fontsize=12)
+ax_energy.set_title('Énergie par spin', fontsize=13)
+ax_energy.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
+ax_energy.set_ylim(-2.1, -0.2)
+ax_energy.legend(fontsize=10)
+ax_energy.grid(True, alpha=0.3)
+energy_marker, = ax_energy.plot([], [], 'o', color='black', markersize=8, zorder=5)
+energy_line, = ax_energy.plot([], [], '-', color='black', linewidth=2, alpha=0.8)
 
-plt.tight_layout()
+# 2. Aimantation par spin
+ax_mag = fig.add_subplot(gs[1, 1])
+ax_mag.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+ax_mag.set_ylabel('$\\langle |m| \\rangle$', fontsize=12)
+ax_mag.set_title('Aimantation par spin', fontsize=13)
+# Courbe théorique
+m_theo = theoretical_magnetization(T_s, Tc)
+ax_mag.plot(T_s, m_theo, 'k--', linewidth=2, label='Théorie', alpha=0.5)
+ax_mag.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
+ax_mag.set_ylim(0, 1.05)
+ax_mag.legend(fontsize=10)
+ax_mag.grid(True, alpha=0.3)
+mag_marker, = ax_mag.plot([], [], 'o', color='black', markersize=8, zorder=5)
+mag_line, = ax_mag.plot([], [], '-', color='black', linewidth=2, alpha=0.8)
 
+# 3. Chaleur spécifique
+ax_heat = fig.add_subplot(gs[2, 1])
+ax_heat.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+ax_heat.set_ylabel('$C$', fontsize=12)
+ax_heat.set_title('Chaleur spécifique', fontsize=13)
+ax_heat.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
+ax_heat.set_ylim(0, 6)
+ax_heat.legend(fontsize=10)
+ax_heat.grid(True, alpha=0.3)
+heat_marker, = ax_heat.plot([], [], 'o', color='black',  markersize=8, zorder=5)
+heat_line, = ax_heat.plot([], [], '-', color='black', linewidth=2, alpha=0.8)
+
+# 4. Susceptibilité magnétique
+ax_chi = fig.add_subplot(gs[3, 1])
+ax_chi.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = {Tc:.3f}')
+ax_chi.set_xlabel('Température (K)', fontsize=12)
+ax_chi.set_ylabel('$\\chi$', fontsize=12)
+ax_chi.set_title('Susceptibilité magnétique', fontsize=13)
+ax_chi.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
+ax_chi.set_ylim(0, 100)
+ax_chi.legend(fontsize=10)
+ax_chi.grid(True, alpha=0.3)
+chi_marker, = ax_chi.plot([], [], 'o', color='black', markersize=8, zorder=5)
+chi_line, = ax_chi.plot([], [], '-', color='black', linewidth=2, alpha=0.8)
+
+# Stockage des données
 temperatures_done = []
+energies = []
 magnetizations = []
+specific_heats = []
+susceptibilities = []
 
 def animate(frame):
     global Reseau
     T = T_s[frame]
+    N = L**2
     
-    # Équilibration à cette température
+    results = simulate_temperature(L, T, n_equilibration, n_measurements, J, h)
+    
     for _ in range(n_equilibration):
-        Reseau = MonteCarlo(L**2, L, Reseau, T, J, h)
+        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
     
-    M = calculate_magnetization(Reseau)
-    m = np.abs(M) / (L**2)
+    e = results['energie_per_spin']
+    m = results['magnetization_per_spin']
+    C = results['specific_heat']
+    chi = results['susceptibility']
     
-    # Mise à jour du réseau
     im.set_array(Reseau)
     title_text.set_text(f'T = {T:.3f} K (Frame {frame+1}/{len(T_s)})')
     
-    # Mise à jour de la courbe d'aimantation
     temperatures_done.append(T)
+    energies.append(e)
     magnetizations.append(m)
-    temp_marker.set_data([T], [m])
+    specific_heats.append(C)
+    susceptibilities.append(chi)
+    
+    # Updating...
+    # 1. Énergie
+    energy_marker.set_data([T], [e])
+    energy_line.set_data(temperatures_done, energies)
+    if len(energies) > 1:
+        ax_energy.set_ylim(min(energies) * 1.1, max(energies) * 1.1)
+    
+    # 2. Aimantation
+    mag_marker.set_data([T], [m])
     mag_line.set_data(temperatures_done, magnetizations)
     
-    if (frame + 1) % 10 == 0:
-        print(f"  Frame {frame+1}/{len(T_s)} - T = {T:.3f} K, |m| = {m:.4f}")
+    # 3. Chaleur spécifique
+    heat_marker.set_data([T], [C])
+    heat_line.set_data(temperatures_done, specific_heats)
+    if len(specific_heats) > 1:
+        ax_heat.set_ylim(0, max(specific_heats) * 1.1)
     
-    return [im, title_text, temp_marker, mag_line]
+    # 4. Susceptibilité
+    chi_marker.set_data([T], [chi])
+    chi_line.set_data(temperatures_done, susceptibilities)
+    if len(susceptibilities) > 1:
+        ax_chi.set_ylim(0, max(susceptibilities) * 1.1)
+    
+    # Affichage de la progression
+    if (frame + 1) % 5 == 0 or frame == 0:
+        print(f"  Frame {frame+1}/{len(T_s)} - T = {T:.3f} K")
+    
+    return [im, title_text, energy_marker, energy_line, mag_marker, mag_line, 
+            heat_marker, heat_line, chi_marker, chi_line]
+
+output_file = '../results/phase_transition_animation.mp4'
+print(f"\nSauvegarde de l'animation vers {output_file} ...")
 
 anim = animation.FuncAnimation(
     fig, animate, frames=len(T_s), 
     interval=100,  # 100 ms entre les frames lors de l'affichage
     blit=True, 
-    repeat=True
+    repeat=True,
 )
-
-output_file = '../results/phase_transition_animation.mp4'
-print(f"\nSauvegarde de l'animation vers {output_file}...")
-print("Cela peut prendre quelques minutes... :waiting:")
 
 try:
     anim.save(output_file, 
@@ -97,3 +175,7 @@ try:
 except Exception as e:
     print(f"\n✗ Erreur lors de la sauvegarde: {e}")
 plt.show()
+
+time_end = time.time()
+time_diff = time_end - time_init
+print(f"\nTemps total d'exécution : {format_time(time_diff)}")
