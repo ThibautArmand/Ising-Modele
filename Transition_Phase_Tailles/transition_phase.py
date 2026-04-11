@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
@@ -15,8 +16,10 @@ from utils.utils import (
     calculate_magnetization,
     theoretical_magnetization,
     calculate_total_energy,
-    MonteCarlo
+    MonteCarlo,
+    format_time
 )
+temps_init = time.time()
 
 def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
@@ -43,13 +46,13 @@ def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0,
     
     # Équilibration
     for _ in range(n_equilibration):
-        Reseau = MonteCarlo(N, L, Reseau, T)
+        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
     
     energies = []
     magnetizations = []
     
     for _ in range(n_measurements):
-        Reseau = MonteCarlo(N, L, Reseau, T)
+        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
         E = calculate_total_energy(Reseau, J, h)
         M = calculate_magnetization(Reseau)
         energies.append(E)
@@ -184,4 +187,8 @@ ax.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig('../results/transition_phase_tailles.pdf', format='pdf', dpi=300, bbox_inches='tight')
 plt.show()
+
+temps_end = time.time()
+temps_diff = temps_end - temps_init
+print(f"Temps d'exécution : {format_time(temps_diff)}")
 

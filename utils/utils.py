@@ -163,3 +163,28 @@ def calculate_total_energy(Reseau, J=1.0, h=0.0):
         for j in range(L):
             E += calculate_H(Reseau, i, j, J, h)
     return E
+
+def format_time(seconds):
+    """
+    Parameters
+    ----------
+    seconds : float
+        Temps
+    
+    Returns
+    -------
+    str
+    """
+    if seconds < 1:
+        return f"{seconds*1000:.2f} millisecondes"
+    elif seconds < 60:
+        return f"{seconds:.2f} secondes"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        secs = seconds % 60
+        return f"{minutes} minute{'s' if minutes > 1 else ''} et {secs:.2f} secondes"
+    else:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = seconds % 60
+        return f"{hours} heure{'s' if hours > 1 else ''}, {minutes} minute{'s' if minutes > 1 else ''} et {secs:.2f} secondes"

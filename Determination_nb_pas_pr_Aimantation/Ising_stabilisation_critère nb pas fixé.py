@@ -7,14 +7,17 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_H,
     calculate_dE,
-    MonteCarlo
+    MonteCarlo,
+    format_time
 )
+temps_init = time.time()
 
 Nvalues=np.array([4,8,16,32,64,128]) #valeurs de tailles du réseau : N*N
 nvalues = Nvalues*Nvalues #definit un pas de Monte Carlo pour chaque taille
@@ -56,4 +59,8 @@ for j, N in enumerate(Nvalues):
     plt.title(f'Evolution de l\'aimantation sur 500 pas de Monte Carlo,N={N}')
     plt.savefig(f'Evolution de l\'aimentation-critère 500 pas_N={N}.pdf', format="pdf",bbox_inches='tight')
     plt.show()
+
+temps_end = time.time()
+temps_diff = temps_end - temps_init
+print(f"Temps d'exécution : {format_time(temps_diff)}")
 

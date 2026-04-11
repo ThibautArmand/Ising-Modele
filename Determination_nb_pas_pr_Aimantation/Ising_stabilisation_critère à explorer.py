@@ -7,14 +7,17 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_H,
     calculate_dE,
-    MonteCarlo
+    MonteCarlo,
+    format_time
 )
+temps_init = time.time()
 
 N=64 #taille du réseau : N*N
 n = N**2 #definit un pas de MonteCarlo
@@ -58,3 +61,7 @@ plt.subplot(111).legend(loc='upper center',ncol=2, bbox_to_anchor=(0.5, -0.15))
 plt.title("Evolution de l'Aimantation suivant un pas de MonteCorlo pour différentes températures")
 plt.savefig("Evolution de l'aimentation-critère à explorer.pdf", format="pdf",bbox_inches='tight')
 plt.show()
+
+temps_end = time.time()
+temps_diff = temps_end - temps_init
+print(f"Temps d'exécution : {format_time(temps_diff)}")
