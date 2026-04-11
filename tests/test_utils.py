@@ -101,8 +101,10 @@ def test_MonteCarlo_returns_same_shape():
     N = 5
     n_steps = 10
     T = 2.0
+    J = 1.0
+    h = 0.0
     reseau = remplissage_aleatoire_reseau(N)
-    reseau_final = MonteCarlo(n_steps, N, reseau.copy(), T)
+    reseau_final = MonteCarlo(n_steps, N, reseau.copy(), T, J, h)
     assert reseau_final.shape == (N, N), f"Shape changed after Monte Carlo"
 
 
@@ -111,8 +113,10 @@ def test_MonteCarlo_values_remain_valid():
     N = 5
     n_steps = 100
     T = 2.5
+    J = 1.0
+    h = 0.0
     reseau = remplissage_aleatoire_reseau(N)
-    reseau_final = MonteCarlo(n_steps, N, reseau.copy(), T)
+    reseau_final = MonteCarlo(n_steps, N, reseau.copy(), T, J, h)
     unique_values = np.unique(reseau_final)
     assert set(unique_values).issubset({-1, 1}), f"Invalid spin values after Monte Carlo: {unique_values}"
 
