@@ -21,14 +21,16 @@ from transition_phase import simulate_temperature
 
 # Paramètres
 L = 64  # Taille du réseau
-T_s = np.linspace(1.0, 40.0, 50) 
+Tc = 2.269  # Température critique
+T_min = 1.0
+T_max = 4.0
+steps_T = 50
 n_equilibration = 10000 
 n_measurements = 1000
 J = 1.0
 h = 0.0
-Tc = 2.269  # Température critique
-
 time_init = time.time()
+T_s = np.linspace(T_min, T_max, steps_T) 
 
 fig = plt.figure(figsize=(16, 12))
 gs = fig.add_gridspec(4, 2, width_ratios=[1, 1], hspace=0.3, wspace=0.3)
@@ -48,7 +50,7 @@ ax_energy.axvline(Tc, color='red', linestyle='--', linewidth=2, label=f'$T_c$ = 
 ax_energy.set_ylabel('$\\langle e \\rangle$', fontsize=12)
 ax_energy.set_title('Énergie par spin', fontsize=13)
 ax_energy.set_xlim(T_s[0] - 0.1, T_s[-1] + 0.1)
-ax_energy.set_ylim(-2.1, -0.2)
+ax_energy.set_ylim(-4.1, 0.2)
 ax_energy.legend(fontsize=10)
 ax_energy.grid(True, alpha=0.3)
 energy_marker, = ax_energy.plot([], [], 'o', color='black', markersize=8, zorder=5)
@@ -107,8 +109,8 @@ def animate(frame):
     N = L**2
     
     e, m, C, chi = simulate_temperature(L, T, n_equilibration, n_measurements, J, h)
-    
-    for _ in range(n_equilibration):
+
+    for _ in range(n_equilibration // 10):
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)
     
     im.set_array(Reseau)
@@ -149,7 +151,7 @@ def animate(frame):
     return [im, title_text, energy_marker, energy_line, mag_marker, mag_line, 
             heat_marker, heat_line, chi_marker, chi_line]
 
-output_file = '../results/phase_transition_animation.mp4'
+output_file = f'../results/phase_transition_animation_{T_min}_{T_max}_{steps_T}_{int(time_init)}.mp4'
 print(f"\nStarting animation {output_file} ...")
 
 anim = animation.FuncAnimation(
