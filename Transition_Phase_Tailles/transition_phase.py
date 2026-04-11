@@ -90,7 +90,10 @@ if __name__ == '__main__':
     Tc = 2.269  # Température critique théorique
 
     # Températures autour de Tc
-    T_s = np.linspace(1.0, 4.0, 20)
+    T_min = 1.0
+    T_max = 4.0
+    steps_T = 20
+    T_s = np.linspace(T_min, T_max, steps_T)
 
     # Paramètres de simulation
     n_equilibration = 10000   # Pas d'équilibration
@@ -183,7 +186,7 @@ if __name__ == '__main__':
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('../results/transition_phase_tailles.pdf', format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(f'../results/transition_phase_tailles_{T_min}_{T_max}_{steps_T}_{int(temps_init)}.pdf', format='pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
     temps_end = time.time()
