@@ -5,7 +5,7 @@ Shared utility functions for the Ising model simulation.
 import numpy as np
 from numba import njit
 
-#@njit
+@njit
 def remplissage_aleatoire_reseau(L):
     """
     Parameters
@@ -16,9 +16,15 @@ def remplissage_aleatoire_reseau(L):
     Returns
     -------
     tableau : [L,L]
-
+    @Borrows
+    -------
+    - When `x=0`: `2*0-1 = -1`
+    - When `x=1`: `2*1-1 = 1`
+    
     """
-    return np.random.choice([-1, 1], size=(L, L))
+    x = np.random.randint(0, 2, size=(L, L)) # \in {0, 1}
+    return 2 * x - 1
+
 @njit
 def calculate_H(Reseau, i, j, J, h):
     """
