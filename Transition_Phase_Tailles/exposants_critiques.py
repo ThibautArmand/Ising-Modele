@@ -52,7 +52,7 @@ if __name__ == '__main__':
     susceptibilities = np.array(susceptibilities)
     
     # T - T_c = 0
-    #  χ(T_c, L) = L^(1/ν) * F_χ [0]
+    # χ(T_c, L) = L^(γ/ν) * F_χ [0]
     # Fit susceptibilité: χ(L) ∝ L^(γ/ν)
     chi_params, chi_covariance = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
     chi_perr = np.sqrt(np.diag(chi_covariance))
