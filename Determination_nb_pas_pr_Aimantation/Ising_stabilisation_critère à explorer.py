@@ -34,9 +34,12 @@ for i, T in enumerate(T_s):
     Reseau = remplissage_aleatoire_reseau(N)
     m_T=np.zeros(1)
     m_T[0]=np.abs(np.mean(Reseau))
-    for k in range(500):
+    for k in range(50):
         Reseau = MonteCarlo(n, N, Reseau, T,J,h)
         m_T=np.append(m_T,np.abs(np.mean(Reseau)))
+        
+
+
     """while(1.05*m_T[-1]<m_T[-2] or 0.95*m_T[-1]>m_T[-2] or 1.05*m_T[-1]<m_T[-3] or 0.95*m_T[-1]>m_T[-3]):
        Reseau = MonteCarlo(n, N, Reseau, T)
        m_T=np.append(m_T,np.abs(np.mean(Reseau))) 
@@ -44,7 +47,6 @@ for i, T in enumerate(T_s):
     m.append(m_T)
     ax.imshow(Reseau)
     ax.set_title(f'T = {T}')
-    print(m[i])
 
 plt.savefig('ising_aimantation stabilisée critère à explorer.pdf', bbox_inches='tight')
 plt.show()
