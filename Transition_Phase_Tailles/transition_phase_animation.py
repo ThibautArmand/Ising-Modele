@@ -15,7 +15,7 @@ from utils.utils import (
     remplissage_aleatoire_reseau,
     theoretical_magnetization,
     MonteCarlo,
-    simulate_temperature,
+    simulate_single_temperature,
     format_time
 )
 
@@ -108,7 +108,7 @@ def animate(frame):
     T = T_s[frame]
     N = L**2
     
-    e, m, C, chi = simulate_temperature(L, T, n_equilibration, n_measurements, J, h)
+    e, m, C, chi = simulate_single_temperature(L, T, n_equilibration, n_measurements, J, h)
 
     for _ in range(n_equilibration // 10):
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)

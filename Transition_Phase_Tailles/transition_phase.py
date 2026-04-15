@@ -12,15 +12,10 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
-    remplissage_aleatoire_reseau,
-    calculate_magnetization,
     theoretical_magnetization,
-    calculate_total_energy,
-    MonteCarlo,
-    simulate_temperature,
+    simulate_single_temperature,
     format_time
 )
-
 
 if __name__ == '__main__':
     temps_init = time.time()
@@ -53,7 +48,7 @@ if __name__ == '__main__':
         }
         
         for i, T in enumerate(T_s):
-            e, m, C, chi = simulate_temperature(L, T, n_equilibration, n_measurements)
+            e, m, C, chi = simulate_single_temperature(L, T, n_equilibration, n_measurements)
             results[L]['energie'].append(e)
             results[L]['magnetization'].append(m)
             results[L]['specific_heat'].append(C)
