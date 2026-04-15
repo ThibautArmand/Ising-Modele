@@ -227,48 +227,6 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
     
     return (e, m, C, chi)
 
-@njit
-def simulate_temperature_range(L, T_s, n_equilibration=5000, n_measurements=2000, J=1.0, h=0.0):
-    """
-    Parameters
-    ----------
-    L : int
-        Taille du réseau
-    T_s : array
-        Températures
-    n_equilibration : int
-        Pas Monte Carlo
-    n_measurements : int
-        Nombre de mesures
-    J : float
-        Constante d'échange
-    h : float
-        Champ magnétique appliqué
-    Returns
-    -------
-    tuple : (e_s, m_s, C_s, chi_s)
-        e_s : list - Énergie moyenne par spin pour chaque T
-        m_s : list - Aimantation moyenne par spin pour chaque T
-        C_s : list - Chaleur spécifique pour chaque T
-        chi_s : list - Susceptibilité pour chaque T
-    """
-    N = L**2
-    n_temps = len(T_s)
-    
-    e_s = np.zeros(n_temps)
-    m_s = np.zeros(n_temps)
-    chi_s = np.zeros(n_temps)
-    C_s = np.zeros(n_temps)
-    
-    for i, T in enumerate(T_s):
-        e, m, C, chi = simulate_single_temperature(L, T, n_equilibration, n_measurements, J, h)
-        e_s[i] = e
-        m_s[i] = m
-        C_s[i] = C
-        chi_s[i] = chi
-    
-    return (e_s, m_s, C_s, chi_s)
-
 def format_time(seconds):
     """
     Parameters
