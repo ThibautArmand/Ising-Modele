@@ -51,6 +51,8 @@ if __name__ == '__main__':
     magnetizations = np.array(magnetizations)
     susceptibilities = np.array(susceptibilities)
     
+    # T - T_c = 0
+    #  χ(T_c, L) = L^(1/ν) * F_χ [0]
     # Fit susceptibilité: χ(L) ∝ L^(γ/ν)
     chi_params, chi_covariance = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
     chi_perr = np.sqrt(np.diag(chi_covariance))
@@ -76,7 +78,7 @@ if __name__ == '__main__':
         chi_fit = power_law(L_fit, *chi_params)
         ax.plot(L_fit, chi_fit, 'r--', linewidth=2, 
                 label=f'Fit: ${chi_params[0]:.2f} \\times L^{{{gamma_nu_estimation:.3f}}}$')
-    ax.set_xlabel('Taille du système L', fontsize=12)
+    ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\chi(T_c, L)$', fontsize=12)
     ax.set_title(f'Susceptibilité à $T_c = {Tc}$', fontsize=13)
     ax.legend(fontsize=11)
@@ -90,9 +92,9 @@ if __name__ == '__main__':
         chi_fit = power_law(L_fit, *chi_params)
         ax.loglog(L_fit, chi_fit, 'r--', linewidth=2, 
                   label=f'$\\gamma/\\nu = {gamma_nu_estimation:.3f} \\pm {gamma_error:.3f}$')
-    ax.set_xlabel('Taille du système L', fontsize=12)
+    ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\chi(T_c, L)$', fontsize=12)
-    ax.set_title('Susceptibilité (échelle log-log)', fontsize=13)
+    ax.set_title('Susceptibilité', fontsize=13)
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3, which='both')
     
@@ -104,7 +106,7 @@ if __name__ == '__main__':
         m_fit = power_law(L_fit, *m_params)
         ax.plot(L_fit, m_fit, 'b--', linewidth=2, 
                 label=f'Fit: ${m_params[0]:.3f} \\times L^{{{beta_nu_estimation:.3f}}}$')
-    ax.set_xlabel('Taille du système L', fontsize=12)
+    ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\langle |m| \\rangle (T_c, L)$', fontsize=12)
     ax.set_title(f'Aimantation à $T_c = {Tc}$', fontsize=13)
     ax.legend(fontsize=11)
@@ -118,9 +120,9 @@ if __name__ == '__main__':
         m_fit = power_law(L_fit, *m_params)
         ax.loglog(L_fit, m_fit, 'b--', linewidth=2, 
                   label=f'$-\\beta/\\nu = {beta_nu_estimation:.3f} \\pm {beta_error:.3f}$')
-    ax.set_xlabel('Taille du système L', fontsize=12)
+    ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\langle |m| \\rangle (T_c, L)$', fontsize=12)
-    ax.set_title('Aimantation (échelle log-log)', fontsize=13)
+    ax.set_title('Aimantation', fontsize=13)
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3, which='both')
     
