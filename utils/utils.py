@@ -168,7 +168,7 @@ def calculate_total_energy(Reseau, J=1.0, h=0.0):
     return E
 
 @njit
-def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
+def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
     """
     Parameters
     ----------
