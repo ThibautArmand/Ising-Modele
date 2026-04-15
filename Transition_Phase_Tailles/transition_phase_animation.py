@@ -15,9 +15,9 @@ from utils.utils import (
     remplissage_aleatoire_reseau,
     theoretical_magnetization,
     MonteCarlo,
+    simulate_temperature,
     format_time
 )
-from transition_phase import simulate_temperature
 
 # Paramètres
 L = 64  # Taille du réseau

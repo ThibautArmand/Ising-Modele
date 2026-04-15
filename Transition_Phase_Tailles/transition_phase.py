@@ -11,75 +11,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import njit
 from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_magnetization,
     theoretical_magnetization,
     calculate_total_energy,
     MonteCarlo,
+    simulate_temperature,
     format_time
 )
-
-@njit
-def simulate_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
-    """
-    Parameters
-    ----------
-    L : int
-        Taille du réseau
-    T : float
-        Température
-    n_equilibration : int
-        Nombre de pas Monte Carlo pour l'équilibration
-    n_measurements : int
-        Nombre de mesures pour les moyennes
-    J : float
-        Constante d'échange
-    h : float
-        Champ magnétique appliqué
-    Returns
-    -------
-    tuple : (e, m, C, chi)
-        e : float - Énergie par spin
-        m : float - Aimantation par spin
-        C : float - Chaleur spécifique
-        chi : float - Susceptibilité magnétique
-    """
-    N = L**2
-    Reseau = remplissage_aleatoire_reseau(L)
-    
-    # Équilibration
-    for _ in range(n_equilibration):
-        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-    
-    energies = np.empty(n_measurements, dtype=np.float64)
-    magnetizations = np.empty(n_measurements, dtype=np.float64)
-    
-    for i in range(n_measurements):
-        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        energies[i] = calculate_total_energy(Reseau, J, h)
-        magnetizations[i] = np.abs(calculate_magnetization(Reseau))
-    
-    # Calcul des moyennes et fluctuations
-    E_mean = np.mean(energies)
-    E2_mean = np.mean(energies**2)
-    M_mean = np.mean(magnetizations)
-    M2_mean = np.mean(magnetizations**2)
-    
-    # Énergie par spin
-    e = E_mean / N
-    
-    # Aimantation par spin
-    m = M_mean / N
-    
-    # Susceptibilité magnétique χ(T)
-    chi = (N / T) * (M2_mean - M_mean**2) 
-
-    # Chaleur spécifique  C(T)
-    C = (1 / (T**2)) * (E2_mean - E_mean**2)
-    
-    return (e, m, C, chi)
 
 
 if __name__ == '__main__':
