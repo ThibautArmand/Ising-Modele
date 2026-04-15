@@ -11,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import njit
 from utils.utils import (
     remplissage_aleatoire_reseau,
     calculate_magnetization,
