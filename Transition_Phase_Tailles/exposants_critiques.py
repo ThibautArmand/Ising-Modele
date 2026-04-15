@@ -11,7 +11,6 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from numba import njit
 from utils.utils import (
     simulate_single_temperature,
 )
@@ -38,13 +37,9 @@ if __name__ == '__main__':
     # Paramètres
     Tc = 2.269
     Ls = np.array([4, 8, 16, 32, 64, 128])
+    n_equilibration = 10000
+    n_measurements = 5000
     
-
-    # Paramètres de simulation
-    n_equilibration = 10000   # Équilibration à T_c
-    n_measurements = 5000     # Mesures
-    
-    # Stockage des résultats
     magnetizations = []
     susceptibilities = []
     
