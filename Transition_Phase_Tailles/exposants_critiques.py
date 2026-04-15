@@ -32,22 +32,13 @@ def power_law(x, a, b):
     """
     return a * x**b
 
-
-
 if __name__ == '__main__':
     temps_init = time.time()
     
     # Paramètres
     Tc = 2.269
-    Ls = np.array([8, 16, 32, 64, 128])
+    Ls = np.array([4, 8, 16, 32, 64, 128])
     
-    # Valeurs théoriques
-    # β = 1/8, γ = 7/4, ν = 1
-    beta_theo = 1/8
-    gamma_theo = 7/4
-    nu_theo = 1.0
-    gamma_over_nu_theo = gamma_theo / nu_theo
-    beta_over_nu_theo = beta_theo / nu_theo
 
     # Paramètres de simulation
     n_equilibration = 10000   # Équilibration à T_c
@@ -77,11 +68,12 @@ if __name__ == '__main__':
     beta_nu_estimation = m_params[1]
     beta_error = m_perr[1]
     
-    # beta_over_nu = -minus_beta_over_nu if minus_beta_over_nu is not None else None
+    print(f"Exposant critique estimé γ/ν = {gamma_nu_estimation:.3f} ± {gamma_error:.3f}")
+    print(f"Exposant critique estimé -β/ν = {beta_nu_estimation:.3f} ± {beta_error:.3f}")
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     
-    # 1. Susceptibilité χ(L) en échelle linéaire
+    # 1. Susceptibilité χ(L) linéaire
     ax = axes[0, 0]
     ax.plot(Ls, susceptibilities, 'o', color='darkblue', markersize=8, label='Données')
     if chi_params is not None:
@@ -95,7 +87,7 @@ if __name__ == '__main__':
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
     
-    # 2. Susceptibilité χ(L) en échelle log-log
+    # 2. Susceptibilité χ(L) log-log
     ax = axes[0, 1]
     ax.loglog(Ls, susceptibilities, 'o', color='darkblue', markersize=8, label='Données')
     if chi_params is not None:
@@ -103,17 +95,13 @@ if __name__ == '__main__':
         chi_fit = power_law(L_fit, *chi_params)
         ax.loglog(L_fit, chi_fit, 'r--', linewidth=2, 
                   label=f'$\\gamma/\\nu = {gamma_nu_estimation:.3f} \\pm {gamma_error:.3f}$')
-        # Ligne théorique
-        chi_theo = chi_params[0] * Ls**(gamma_over_nu_theo)
-        ax.loglog(Ls, chi_theo, 'g:', linewidth=2, 
-                  label=f'Théorie: $\\gamma/\\nu = {gamma_over_nu_theo:.3f}$')
     ax.set_xlabel('Taille du système L', fontsize=12)
     ax.set_ylabel('$\\chi(T_c, L)$', fontsize=12)
     ax.set_title('Susceptibilité (échelle log-log)', fontsize=13)
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3, which='both')
     
-    # 3. Aimantation M(L) en échelle linéaire
+    # 3. Aimantation M(L) linéaire
     ax = axes[1, 0]
     ax.plot(Ls, magnetizations, 'o', color='darkred', markersize=8, label='Données')
     if m_params is not None:
@@ -127,7 +115,7 @@ if __name__ == '__main__':
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
     
-    # 4. Aimantation M(L) en échelle log-log
+    # 4. Aimantation M(L) log-log
     ax = axes[1, 1]
     ax.loglog(Ls, magnetizations, 'o', color='darkred', markersize=8, label='Données')
     if m_params is not None:
@@ -135,10 +123,6 @@ if __name__ == '__main__':
         m_fit = power_law(L_fit, *m_params)
         ax.loglog(L_fit, m_fit, 'b--', linewidth=2, 
                   label=f'$-\\beta/\\nu = {beta_nu_estimation:.3f} \\pm {beta_error:.3f}$')
-        # Ligne théorique
-        m_theo = m_params[0] * Ls**(-beta_over_nu_theo)
-        ax.loglog(Ls, m_theo, 'g:', linewidth=2, 
-                  label=f'Théorie: $-\\beta/\\nu = {-beta_over_nu_theo:.3f}$')
     ax.set_xlabel('Taille du système L', fontsize=12)
     ax.set_ylabel('$\\langle |m| \\rangle (T_c, L)$', fontsize=12)
     ax.set_title('Aimantation (échelle log-log)', fontsize=13)
