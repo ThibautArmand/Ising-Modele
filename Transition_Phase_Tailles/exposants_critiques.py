@@ -32,24 +32,47 @@ def power_law(x, a, b):
     return a * x**b
 
 if __name__ == '__main__':
-    temps_init = time.time()
+    time_init = time.time()
+    
+    print('Started...')
     
     # Paramètres
     Tc = 2.269
-    Ls = np.array([4, 8, 16, 32, 64, 128])
+    Ls = np.array([4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160, 192])
     n_equilibration = 10000
     n_measurements = 5000
+    
+    # Valeurs théoriques des exposants critiques (2D Ising)
+    # β = 1/8, γ = 7/4, ν = 1
+    gamma_nu_theorique = 7/4  # = 1.75
+    beta_nu_theorique = -1/8  # = -0.125 (négatif car M ∝ L^(-β/ν))
     
     magnetizations = []
     susceptibilities = []
     
     for i, L in enumerate(Ls):
+        time_L_init = time.time()
+        if L <= 32:
+            n_equilibration = 10000
+            n_measurements = 5000
+        elif L <= 64:
+            n_equilibration = 50000
+            n_measurements = 20000
+        else:
+            n_equilibration = 100000
+            n_measurements = 50000
+        print(f"L={L} avec n_equilibration={n_equilibration} et n_measurements={n_measurements}...")
         _, m, _, chi = simulate_single_temperature(L, Tc, n_equilibration, n_measurements)
         magnetizations.append(m)
         susceptibilities.append(chi)
+        time_L_end = time.time()
+        print(f"Temps de calcul L={L} : {time_L_end - time_L_init:.2f} secondes \n")
     
     magnetizations = np.array(magnetizations)
     susceptibilities = np.array(susceptibilities)
+    
+    
+    print("Fitting...")
     
     # T - T_c = 0
     # χ(T_c, L) = L^(γ/ν) * F_χ [0]
@@ -65,8 +88,8 @@ if __name__ == '__main__':
     beta_nu_estimation = m_params[1]
     beta_error = m_perr[1]
     
-    print(f"Exposant critique estimé γ/ν = {gamma_nu_estimation:.3f} ± {gamma_error:.3f}")
-    print(f"Exposant critique estimé -β/ν = {beta_nu_estimation:.3f} ± {beta_error:.3f}")
+    print(f"Exposant critique estimé γ/ν = {gamma_nu_estimation:.3f} ± {gamma_error:.3f} (théorique: {gamma_nu_theorique:.3f})")
+    print(f"Exposant critique estimé -β/ν = {beta_nu_estimation:.3f} ± {beta_error:.3f} (théorique: {beta_nu_theorique:.3f})")
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     
@@ -91,7 +114,10 @@ if __name__ == '__main__':
         L_fit = np.linspace(Ls[0], Ls[-1], 100)
         chi_fit = power_law(L_fit, *chi_params)
         ax.loglog(L_fit, chi_fit, 'r--', linewidth=2, 
-                  label=f'$\\gamma/\\nu = {gamma_nu_estimation:.3f} \\pm {gamma_error:.3f}$')
+                  label=f'Fit: $\\gamma/\\nu = {gamma_nu_estimation:.3f} \\pm {gamma_error:.3f}$')
+        chi_theorique = chi_params[0] * L_fit**(gamma_nu_theorique)
+        ax.loglog(L_fit, chi_theorique, 'g:', linewidth=2, 
+                  label=f'Théorique: $\\gamma/\\nu = {gamma_nu_theorique:.3f}$')
     ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\chi(T_c, L)$', fontsize=12)
     ax.set_title('Susceptibilité', fontsize=13)
@@ -119,7 +145,10 @@ if __name__ == '__main__':
         L_fit = np.linspace(Ls[0], Ls[-1], 100)
         m_fit = power_law(L_fit, *m_params)
         ax.loglog(L_fit, m_fit, 'b--', linewidth=2, 
-                  label=f'$-\\beta/\\nu = {beta_nu_estimation:.3f} \\pm {beta_error:.3f}$')
+                  label=f'Fit: $-\\beta/\\nu = {beta_nu_estimation:.3f} \\pm {beta_error:.3f}$')
+        m_theorique = m_params[0] * L_fit**(beta_nu_theorique)
+        ax.loglog(L_fit, m_theorique, 'g:', linewidth=2, 
+                  label=f'Théorique: $-\\beta/\\nu = {beta_nu_theorique:.3f}$')
     ax.set_xlabel('L', fontsize=12)
     ax.set_ylabel('$\\langle |m| \\rangle (T_c, L)$', fontsize=12)
     ax.set_title('Aimantation', fontsize=13)
@@ -127,6 +156,11 @@ if __name__ == '__main__':
     ax.grid(True, alpha=0.3, which='both')
     
     plt.tight_layout()
-    plt.savefig(f'../results/exposants_critiques_{int(temps_init)}.pdf', 
+    plt.savefig(f'../results/exposants_critiques_{int(time_init)}.pdf', 
                 format='pdf', dpi=300, bbox_inches='tight')
     plt.show()
+    
+    time_end = time.time()
+    print('Finished')
+    print(f"Temps total d'exécution : {time_end - time_init:.2f} secondes")
+    
