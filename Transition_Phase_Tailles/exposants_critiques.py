@@ -62,7 +62,7 @@ if __name__ == '__main__':
             n_equilibration = 100000
             n_measurements = 50000
         print(f"L={L} avec n_equilibration={n_equilibration} et n_measurements={n_measurements}...")
-        _, m, _, chi = simulate_single_temperature(L, Tc, n_equilibration, n_measurements)
+        _, m, _, chi = simulate_single_temperature(L, Tc, n_equilibration, n_measurements, decorrelation_sweeps=10)
         magnetizations.append(m)
         susceptibilities.append(chi)
         time_L_end = time.time()
@@ -77,10 +77,16 @@ if __name__ == '__main__':
     # T - T_c = 0
     # χ(T_c, L) = L^(γ/ν) * F_χ [0]
     # Fit susceptibilité: χ(L) ∝ L^(γ/ν)
-    chi_params, chi_covariance = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
-    chi_perr = np.sqrt(np.diag(chi_covariance))
-    gamma_nu_estimation = chi_params[1]
-    gamma_error = chi_perr[1]
+    #chi_params, chi_covariance = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
+    #chi_perr = np.sqrt(np.diag(chi_covariance))
+    #gamma_nu_estimation = chi_params[1]
+    #gamma_error = chi_perr[1]
+
+    # Fit susceptibilité en log-log: log(χ) = const + (γ/ν) log(L)
+    chi_polyfit, chi_covariance = np.polyfit(np.log(Ls), np.log(susceptibilities), 1, cov=True)
+    gamma_nu_estimation = chi_polyfit[0]
+    gamma_error = np.sqrt(chi_covariance[0, 0])
+    chi_params = np.array([np.exp(chi_polyfit[1]), gamma_nu_estimation])
 
     # Fit aimantation: M(L) ∝ L^(-β/ν)
     m_params, m_covariance = curve_fit(power_law, Ls, magnetizations, p0=[1.0, 1.0])

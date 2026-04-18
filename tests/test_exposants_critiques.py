@@ -27,6 +27,7 @@ def test_exposant_critique_gamma_nu():
     χ(L) ∝ L^(γ/ν) avec γ/ν = 1.75 (théorique)
     """
     # Paramètres
+    np.random.seed(42)
     Tc = 2.269
     Ls = np.array([8, 16, 32, 48])  # Tailles réduites pour test rapide
     gamma_nu_theorique = 7/4  # = 1.75
@@ -37,14 +38,17 @@ def test_exposant_critique_gamma_nu():
     for L in Ls:
         n_equilibration = 5000 if L <= 32 else 10000
         n_measurements = 2000 if L <= 32 else 5000
-        _, _, _, chi = simulate_single_temperature(L, Tc, n_equilibration, n_measurements)
+        _, _, _, chi = simulate_single_temperature(L, Tc, n_equilibration, n_measurements, decorrelation_sweeps=10)
         susceptibilities.append(chi)
     
     susceptibilities = np.array(susceptibilities)
     
     # Fit: χ(L) ∝ L^(γ/ν)
-    params, _ = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
-    gamma_nu_estimation = params[1]
+
+    # Fit log-log: log(χ) = const + (γ/ν) log(L)
+    gamma_nu_estimation, _ = np.polyfit(np.log(Ls), np.log(susceptibilities), 1)
+    # params, _ = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
+    # gamma_nu_estimation = params[1]
     
     # Vérification avec tolérance de 100%
     tolerance = 1.0

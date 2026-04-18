@@ -168,7 +168,7 @@ def calculate_total_energy(Reseau, J=1.0, h=0.0):
     return E
 
 @njit
-def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0):
+def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0, decorrelation_sweeps=1):
     """
     Parameters
     ----------
@@ -200,27 +200,33 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
         Reseau = MonteCarlo(N, L, Reseau, T, J, h)
     
     energies = np.empty(n_measurements, dtype=np.float64)
-    magnetizations = np.empty(n_measurements, dtype=np.float64)
+    magnetizations_signed = np.empty(n_measurements, dtype=np.float64)
+    magnetizations_abs = np.empty(n_measurements, dtype=np.float64)
     
     for i in range(n_measurements):
-        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+        for _ in range(decorrelation_sweeps):
+            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
         energies[i] = calculate_total_energy(Reseau, J, h)
-        magnetizations[i] = np.abs(calculate_magnetization(Reseau))
+        M = calculate_magnetization(Reseau)
+        magnetizations_signed[i] = M
+        magnetizations_abs[i] = np.abs(M)
     
     # Calcul des moyennes et fluctuations
     E_mean = np.mean(energies)
     E2_mean = np.mean(energies**2)
-    M_mean = np.mean(magnetizations)
-    M2_mean = np.mean(magnetizations**2)
+    M_mean_signed = np.mean(magnetizations_signed)
+    M2_mean_signed = np.mean(magnetizations_signed**2)
+    M_mean_abs = np.mean(magnetizations_abs)
     
     # Énergie par spin
     e = E_mean / N
     
     # Aimantation par spin
-    m = M_mean / N
-    
+    m = M_mean_abs / N
+
     # Susceptibilité magnétique χ(T)
-    chi = (N / T) * (M2_mean - M_mean**2) 
+    # chi = (N / T) * (M2_mean_signed - M_mean_signed**2) 
+    chi = (M2_mean_signed - M_mean_signed**2) / (N * T)
 
     # Chaleur spécifique  C(T)
     C = (1 / (T**2)) * (E2_mean - E_mean**2)
