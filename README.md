@@ -23,13 +23,14 @@ python IsingBase.py
 ## Exécution des tests
 
 ```bash
-python -m pytest tests/test_utils.py -v
+python -m pytest tests/ -v
 ```
 
 ## Structure du projet
 
 - `utils/` - Fonctions utilitaires pour les simulations du modèle d’Ising
 - `tests/` - Suite de tests
+- `Transition_Phase_tailles` - Des analyses aoutur de `T_c` pour différentes tailles, ainsi que évolution pour différents températures.
 - `IsingBase.py` - Implémentation de base du modèle d’Ising
 
 ## Contributeurs
