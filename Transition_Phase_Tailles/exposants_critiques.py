@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 from utils.utils import (
     simulate_single_temperature,
 )
@@ -31,21 +30,9 @@ def power_law(x, a, b):
     """
     return a * x**b
 
-if __name__ == '__main__':
-    time_init = time.time()
-    
-    print('Started...')
-    
-    # Paramètres
-    Tc = 2.269
-    Ls = np.array([4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160, 192])
+def simulate_finite_size_scaling(Ls, Tc):
     n_equilibration = 10000
     n_measurements = 5000
-    
-    # Valeurs théoriques des exposants critiques (2D Ising)
-    # β = 1/8, γ = 7/4, ν = 1
-    gamma_nu_theorique = 7/4  # = 1.75
-    beta_nu_theorique = -1/8  # = -0.125 (négatif car M ∝ L^(-β/ν))
     
     magnetizations = []
     susceptibilities = []
@@ -86,6 +73,27 @@ if __name__ == '__main__':
     beta_nu_estimation = m_polyfit[0]
     beta_error = np.sqrt(m_covariance[0, 0])
     m_params = np.array([np.exp(m_polyfit[1]), beta_nu_estimation])
+
+    return (gamma_nu_estimation, gamma_error, beta_nu_estimation, beta_error), (chi_params, m_params), (susceptibilities, magnetizations)
+    
+
+if __name__ == '__main__':
+    time_init = time.time()
+    
+    print('Started...')
+    
+    # Paramètres
+    Tc = 2.269
+    Ls = np.array([4, 8, 12, 16, 24, 32, 48, 64])
+    n_equilibration = 10000
+    n_measurements = 5000
+    
+    # Valeurs théoriques des exposants critiques (2D Ising)
+    # β = 1/8, γ = 7/4, ν = 1
+    gamma_nu_theorique = 7/4  # = 1.75
+    beta_nu_theorique = -1/8  # = -0.125 (négatif car M ∝ L^(-β/ν))
+
+    (gamma_nu_estimation, gamma_error, beta_nu_estimation, beta_error), (chi_params, m_params), (susceptibilities, magnetizations) = simulate_finite_size_scaling(Ls, Tc)
     
     print(f"Exposant critique estimé γ/ν = {gamma_nu_estimation:.3f} ± {gamma_error:.3f} (théorique: {gamma_nu_theorique:.3f})")
     print(f"Exposant critique estimé -β/ν = {beta_nu_estimation:.3f} ± {beta_error:.3f} (théorique: {beta_nu_theorique:.3f})")
