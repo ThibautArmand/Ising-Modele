@@ -30,7 +30,8 @@ python -m pytest tests/ -v
 
 - `utils/` - Fonctions utilitaires pour les simulations du modèle d’Ising
 - `tests/` - Suite de tests
-- `Transition_Phase_tailles` - Des analyses aoutur de `T_c` pour différentes tailles, ainsi que évolution pour différents températures.
+- `Transition_Phase_tailles` - Des analyses d'énergie, aimantation, susceptibilité, et chaleur et son évolution pour différents températures.
+- `Exposants_Critiques` - Des analyses à `T_c` pour différentes tailles
 - `IsingBase.py` - Implémentation de base du modèle d’Ising
 
 ## Contributeurs
