@@ -71,17 +71,10 @@ if __name__ == '__main__':
     magnetizations = np.array(magnetizations)
     susceptibilities = np.array(susceptibilities)
     
-    
     print("Fitting...")
     
     # T - T_c = 0
     # χ(T_c, L) = L^(γ/ν) * F_χ [0]
-    # Fit susceptibilité: χ(L) ∝ L^(γ/ν)
-    #chi_params, chi_covariance = curve_fit(power_law, Ls, susceptibilities, p0=[1.0, 1.0])
-    #chi_perr = np.sqrt(np.diag(chi_covariance))
-    #gamma_nu_estimation = chi_params[1]
-    #gamma_error = chi_perr[1]
-
     # Fit susceptibilité en log-log: log(χ) = const + (γ/ν) log(L)
     chi_polyfit, chi_covariance = np.polyfit(np.log(Ls), np.log(susceptibilities), 1, cov=True)
     gamma_nu_estimation = chi_polyfit[0]
@@ -89,10 +82,10 @@ if __name__ == '__main__':
     chi_params = np.array([np.exp(chi_polyfit[1]), gamma_nu_estimation])
 
     # Fit aimantation: M(L) ∝ L^(-β/ν)
-    m_params, m_covariance = curve_fit(power_law, Ls, magnetizations, p0=[1.0, 1.0])
-    m_perr = np.sqrt(np.diag(m_covariance))
-    beta_nu_estimation = m_params[1]
-    beta_error = m_perr[1]
+    m_polyfit, m_covariance = np.polyfit(np.log(Ls), np.log(magnetizations), 1, cov=True)
+    beta_nu_estimation = m_polyfit[0]
+    beta_error = np.sqrt(m_covariance[0, 0])
+    m_params = np.array([np.exp(m_polyfit[1]), beta_nu_estimation])
     
     print(f"Exposant critique estimé γ/ν = {gamma_nu_estimation:.3f} ± {gamma_error:.3f} (théorique: {gamma_nu_theorique:.3f})")
     print(f"Exposant critique estimé -β/ν = {beta_nu_estimation:.3f} ± {beta_error:.3f} (théorique: {beta_nu_theorique:.3f})")
