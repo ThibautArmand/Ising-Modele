@@ -233,6 +233,48 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
     
     return (e, m, C, chi)
 
+@njit
+def simulate_M2_M4(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0, decorrelation_sweeps=1):
+    """    
+    Parameters
+    ----------
+    L : int
+        Taille du réseau
+    T : float
+        Température
+    n_equilibration : int
+        Pas Monte Carlo
+    n_measurements : int
+        Nombre de mesures
+    J : float
+    h : float
+        Champ magnétique
+    decorrelation_sweeps : int
+    
+    Returns
+    -------
+    tuple : (M2_mean, M4_mean)
+    """
+    N = L**2
+    Reseau = remplissage_aleatoire_reseau(L)
+    
+    # Équilibration
+    for _ in range(n_equilibration):
+        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+    
+    magnetizations = np.empty(n_measurements, dtype=np.float64)
+    
+    for i in range(n_measurements):
+        for _ in range(decorrelation_sweeps):
+            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+        M = calculate_magnetization(Reseau)
+        magnetizations[i] = M
+    
+    M2_mean = np.mean(magnetizations**2)
+    M4_mean = np.mean(magnetizations**4)
+    
+    return (M2_mean, M4_mean)
+
 def format_time(seconds):
     """
     Parameters
