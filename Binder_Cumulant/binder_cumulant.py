@@ -17,19 +17,14 @@ from utils.utils import (
 
 def binder_cumulant(M2_mean, M4_mean):
     """
-    Calcule le cumulant de Binder
-    
     Parameters
     ----------
     M2_mean : float
-        Moyenne de M^2
     M4_mean : float
-        Moyenne de M^4
-    
+
     Returns
     -------
     U_L : float
-        Cumulant de Binder
     """
     return 1.0 - M4_mean / (3.0 * M2_mean**2)
 
