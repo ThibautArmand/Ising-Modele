@@ -28,7 +28,7 @@ def binder_cumulant(M2_mean, M4_mean):
     """
     return 1.0 - M4_mean / (3.0 * M2_mean**2)
 
-def estimate_T_c(T_s, Ls, binder_estimated, tolerance=0.01):
+def estimate_T_c(T_s, Ls, binder_estimated):
     """
     Parameters
     ----------
@@ -37,21 +37,32 @@ def estimate_T_c(T_s, Ls, binder_estimated, tolerance=0.01):
     Ls : list
         Tailles
     binder_estimated : dict
-    tolerance : float
     
     Returns
     -------
     T_c : float
     """
-    # On cherche où les courbes se croisent (variance minimale)
-    variances = []
-    for i in range(len(T_s)):
-        values = [binder_estimated[L][i] for L in Ls]
-        variances.append(np.var(values))
+    crossings = []
     
-    # Trouver le minimum de variance
-    idx_min = np.argmin(variances)
-    T_c = T_s[idx_min]
+    for k in range(len(Ls) - 1):
+        L1 = Ls[k]
+        L2 = Ls[k + 1]
+        
+        U1 = binder_estimated[L1]
+        U2 = binder_estimated[L2]
+        delta_U = U1 - U2
+        
+        for i in range(len(T_s) - 1):
+            if delta_U[i] == 0:
+                crossings.append(T_s[i])
+                break
+            # interpolation linéaire
+            if delta_U[i] * delta_U[i + 1] < 0:
+                T1, T2 = T_s[i], T_s[i + 1]
+                d1, d2 = delta_U[i], delta_U[i + 1]
+                crossings.append(T1 - d1 * (T2 - T1) / (d2 - d1))
+        
+    T_c = np.mean(crossings)
     
     return T_c
 
@@ -73,6 +84,7 @@ def simulate_binder_cumulant(Ls, Ts, n_equilibration=10000, n_measurements=5000)
     binder_estimated = {}
     
     for L in Ls:
+        print(f"L={L}...")
         binder_estimated[L] = []
         for T in Ts:
             M2_mean, M4_mean = simulate_M2_M4(
@@ -90,8 +102,8 @@ if __name__ == '__main__':
     temps_init = time.time()
     
     # Paramètres
-    Ls = [8, 16, 24, 32] 
-    Tc_theoretical = 2.269 
+    Ls = [4, 8, 12, 16, 32, 64]
+    Tc_theoretical = 2.269
     n_equilibration = 10000
     n_measurements = 5000
 
@@ -104,7 +116,7 @@ if __name__ == '__main__':
     binder_estimated = simulate_binder_cumulant(Ls, T_s, n_equilibration, n_measurements)
     T_c = estimate_T_c(T_s, Ls, binder_estimated)
 
-    print(f"Température critique estimée: T_c ≈ {T_c:.4f}")
+    print(f"Température critique estimée: T_c = {T_c:.4f}")
     print(f"Température critique théorique: T_c = {Tc_theoretical:.4f}")
     print(f"Écart relatif: {abs(T_c - Tc_theoretical)/Tc_theoretical * 100:.2f}%\n")
 
@@ -114,13 +126,13 @@ if __name__ == '__main__':
     for i, L in enumerate(Ls):
         ax.plot(T_s, binder_estimated[L], 'o-', 
                 color=colors[i], label=f'L = {L}', linewidth=2, markersize=5)
-    ax.axvline(Tc_theoretical, color='red', linestyle='--', 
-               linewidth=2, label=f'$T_c$ théorique = {Tc_theoretical:.3f}')
-    ax.axvline(T_c, color='green', linestyle=':', 
+    ax.axvline(T_c, color='red', linestyle='--', 
                linewidth=2, label=f'$T_c$ estimée = {T_c:.3f}')
+    ax.axvline(Tc_theoretical, color='green', linestyle=':', 
+               linewidth=2, label=f'$T_c$ théorique = {Tc_theoretical:.3f}')
     ax.set_xlabel('$T$', fontsize=14)
     ax.set_ylabel('$U_L(T)$', fontsize=14)
-    ax.set_title('Cumulant de Binder - $T_c$', fontsize=16)
+    ax.set_title('Binder cumulant', fontsize=16)
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
 
