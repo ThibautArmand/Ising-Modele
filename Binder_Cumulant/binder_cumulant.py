@@ -123,9 +123,9 @@ if __name__ == '__main__':
                linewidth=2, label=f'$T_c$ théorique = {Tc_theoretical:.3f}')
     ax.axvline(T_c, color='green', linestyle=':', 
                linewidth=2, label=f'$T_c$ estimée = {T_c:.3f}')
-    ax.set_xlabel('Température $T$', fontsize=14)
-    ax.set_ylabel('Cumulant de Binder $U_L(T)$', fontsize=14)
-    ax.set_title('Cumulant de Binder - Détermination de $T_c$', fontsize=16)
+    ax.set_xlabel('$T$', fontsize=14)
+    ax.set_ylabel('$U_L(T)$', fontsize=14)
+    ax.set_title('Cumulant de Binder - $T_c$', fontsize=16)
     ax.legend(fontsize=11)
     ax.grid(True, alpha=0.3)
 
