@@ -57,23 +57,18 @@ def estimate_T_c(T_s, Ls, binder_estimated, tolerance=0.01):
 
 def simulate_binder_cumulant(Ls, Ts, n_equilibration=10000, n_measurements=5000):
     """
-    Simule le cumulant de Binder pour différentes tailles et températures
-    
     Parameters
     ----------
     Ls : list
-        Tailles du système
+        Tailles
     Ts : array
-        Températures à simuler
+        Températures
     n_equilibration : int
-        Nombre de pas d'équilibration
     n_measurements : int
-        Nombre de mesures pour les moyennes
     
     Returns
     -------
     binder_estimated : dict
-        Cumulant de Binder pour chaque taille et température
     """
     binder_estimated = {}
     
