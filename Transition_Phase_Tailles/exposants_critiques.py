@@ -31,6 +31,19 @@ def power_law(x, a, b):
     return a * x**b
 
 def simulate_finite_size_scaling(Ls, Tc):
+    """
+    Parameters
+    ----------
+    Ls : list
+        Tailles
+    Tc : float
+        Température critique
+
+    Returns
+    -------
+    3d-tuples
+
+    """
     n_equilibration = 10000
     n_measurements = 5000
     
@@ -85,8 +98,6 @@ if __name__ == '__main__':
     # Paramètres
     Tc = 2.269
     Ls = np.array([4, 8, 12, 16, 24, 32, 48, 64])
-    n_equilibration = 10000
-    n_measurements = 5000
     
     # Valeurs théoriques des exposants critiques (2D Ising)
     # β = 1/8, γ = 7/4, ν = 1
