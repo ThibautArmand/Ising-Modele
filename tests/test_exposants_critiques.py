@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 import pytest
 
-from Transition_Phase_Tailles.exposants_critiques import simulate_finite_size_scaling
+from Exposants_Critiques.exposants_critiques import simulate_finite_size_scaling
 
 
 def test_exposant_critique_gamma_nu():
