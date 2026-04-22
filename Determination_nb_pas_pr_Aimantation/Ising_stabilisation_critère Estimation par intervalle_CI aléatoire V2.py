@@ -19,7 +19,7 @@ from utils.utils import (
 )
 temps_init = time.time()
 
-Lvalues=np.array([4,8,16,32,64]) #valeurs de tailles du réseau : L*L
+Lvalues=np.array([4,8,16,32,64,128]) #valeurs de tailles du réseau : L*L
 nvalues = Lvalues*Lvalues #definit un pas de Monte Carlo pour chaque taille
 J=1 #constante d'échange
 h=0 #champ magnétique extérieur
@@ -42,20 +42,20 @@ for j, L in enumerate(Lvalues):
             Reseau = MonteCarlo(n, L, Reseau, T,J,h)
             m_T=np.append(m_T,np.abs(np.mean(Reseau)))
         
-        p=0
-        while (p<0.95):
+        stab=0 #test stabilité atteinte: vrai=1;faux=0
+        while (stab==0):
             for k in range(50):
                 Reseau = MonteCarlo(n, L, Reseau, T,J,h)
                 m_T=np.append(m_T,np.abs(np.mean(Reseau)))
-            µ=np.mean(m_T[len(m_T)-50:]) # moyenne des 50 dernières valeurs
-            σ=np.std(m_T[len(m_T)-50:]) #Ecart-type des 50 dernières valeurs
-            m_inf=µ-1.96*σ #borne inférieur de l'intervalle
-            m_sup=µ+1.96*σ #borne superieur de l'intervalle
-            p=0 # p= % des 50 avant-dernières valeurs dans l'intervalle
-            for k in range(50):
-                if m_inf <= m_T[len(m_T)-(51+k)] <= m_sup:
-                    p+=1
-            p/=50
+            µ=np.mean(m_T[len(m_T)-49:]) # moyenne des 50 dernières valeurs
+            σ=np.std(m_T[len(m_T)-49:]) #Ecart-type des 50 dernières valeurs
+            m_inf=µ-2.576/np.sqrt(50)*σ #borne inférieur de l'intervalle
+            m_sup=µ+2.576/np.sqrt(50)*σ #borne superieur de l'intervalle
+            µ1=np.mean(m_T[len(m_T)-99:len(m_T)-50]) # moyenne des 100 à 50 dernières valeurs
+            if m_inf <= µ1 <= m_sup :
+                stab=1
+            else:
+                stab=0
                     
         m.append(m_T)
         ax.imshow(Reseau)

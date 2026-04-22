@@ -26,6 +26,27 @@ def remplissage_aleatoire_reseau(L):
     return 2 * x - 1
 
 @njit
+def remplissage_alterné_4lignes_4lignes(L):
+    """
+    Parameters
+    ----------
+    L : int
+        Taille du réseau
+
+    Returns
+    -------
+    tableau : [L,L]
+    
+    """
+    X=np.zeros((L,L))
+    for i in range(L):
+           if ((i//4)%2)==0:
+               X[:][i]=1
+           else:
+               X[:][i]=-1
+    return X
+
+@njit
 def calculate_H(Reseau, i, j, J, h):
     """
     Parameters
@@ -52,6 +73,7 @@ def calculate_H(Reseau, i, j, J, h):
         Reseau[i,(j+1)%C]
         ) - h) * Reseau[i,j]
     return H
+
 @njit
 def calculate_dE(Reseau, i, j, J, h):
     """

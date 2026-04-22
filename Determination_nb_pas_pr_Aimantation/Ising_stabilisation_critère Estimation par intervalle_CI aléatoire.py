@@ -19,7 +19,7 @@ from utils.utils import (
 )
 temps_init = time.time()
 
-Lvalues=np.array([4,8,16,32,64]) #valeurs de tailles du réseau : L*L
+Lvalues=np.array([4,8,16,32,64,128]) #valeurs de tailles du réseau : L*L
 nvalues = Lvalues*Lvalues #definit un pas de Monte Carlo pour chaque taille
 J=1 #constante d'échange
 h=0 #champ magnétique extérieur

@@ -11,6 +11,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
+    remplissage_alterné_4lignes_4lignes,
     remplissage_aleatoire_reseau,
     calculate_H,
     calculate_dE,
@@ -19,7 +20,7 @@ from utils.utils import (
 )
 temps_init = time.time()
 
-Lvalues=np.array([4,8,16,32,64]) #valeurs de tailles du réseau : L*L
+Lvalues=np.array([4,8,16,32,64,128]) #valeurs de tailles du réseau : L*L
 nvalues = Lvalues*Lvalues #definit un pas de Monte Carlo pour chaque taille
 J=1 #constante d'échange
 h=0 #champ magnétique extérieur
@@ -35,7 +36,7 @@ for j, L in enumerate(Lvalues):
     for i, T in enumerate(T_s):
         print(f"Début calul pour L={L} T={T}")
         ax = axes[i]
-        Reseau = remplissage_aleatoire_reseau(L)
+        Reseau = remplissage_alterné_4lignes_4lignes(L)
         m_T=np.zeros(1)
         m_T[0]=np.abs(np.mean(Reseau))
         for k in range(50):
@@ -62,7 +63,7 @@ for j, L in enumerate(Lvalues):
         ax.set_title(f'T = {T}')
         print(f"Fin calul pour L={L} T={T}")
         
-    plt.savefig(f'Configuration finale-critère Estimation par intervalle_CI Aléatoire_L={L}.pdf', bbox_inches='tight')
+    plt.savefig(f'Configuration finale-critère Estimation par intervalle_CI Alterné 4lignes-4lignes_L={L}.pdf', bbox_inches='tight')
     plt.show()
 
     plt.plot(range(len(m[0])),m[0],'k-',linewidth=0.65,label=f'T={T_s[0]}')
@@ -74,8 +75,8 @@ for j, L in enumerate(Lvalues):
     plt.xlabel("nb pas",loc='right')
     plt.ylabel(r'$ | m | $',loc='top')
     plt.subplot(111).legend(loc='upper center',ncol=2, bbox_to_anchor=(0.5, -0.15))
-    plt.title(f'Evolution selon critère Estimation par intervalle,Condition Initiale aléatoire de taille L={L}')
-    plt.savefig(f'Evolution-critère Estimation par intervalle_CI Aléatoire_L={L}.pdf', format="pdf",bbox_inches='tight')
+    plt.title(f'Evolution selon critère Estimation par intervalle,Condition Initiale alterné 4lignes-4lignes, Réseau taille L={L}')
+    plt.savefig(f'Evolution-critère Estimation par intervalle_CI Alterné 4lignes-4lignes_L={L}.pdf', format="pdf",bbox_inches='tight')
     plt.show()
 
 temps_end = time.time()
