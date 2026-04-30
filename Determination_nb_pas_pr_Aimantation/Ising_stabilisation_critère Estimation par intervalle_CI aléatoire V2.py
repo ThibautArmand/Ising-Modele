@@ -84,11 +84,6 @@ plt.savefig('Estimation_pas MonteCarlo_CI Aléatoire.pdf', format="pdf",bbox_inc
 plt.show()
 
 """
-            result=filter(lambda m[i][]: m[i][-1] < µ_m_f-σ_m_f or m[i][-1] > µ_m_f+σ_m_f, m)
-
-            for i in range(len(m_f)):
-                if  m[i][-1] < µ_m_f-σ_m_f or m[i][-1] > µ_m_f+σ_m_f:
-                    m.pop(i)
             
             fig , (ax1,ax2) = plt.subplots(1,2,figsize=(10, 10))
             ax1.plot(range(len(m_T)),m_T,'k-',linewidth=0.65,label=f'T={T_s[0]}')
