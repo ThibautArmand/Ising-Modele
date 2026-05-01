@@ -48,30 +48,47 @@ for i, T in enumerate(T_s):
         m_up = m_L[:taille_h]
         m_down = m_L[taille_h:]
 
-        idx_zero = np.argmin(np.abs(h_up))
-        M_L = np.abs(m_up[idx_zero])
-        chi_num = np.gradient(m_up, h_up)
+        idx_zero_up = np.argmin(np.abs(h_up))
+        idx_zero_down = np.argmin(np.abs(h_down))
+        
+        M_L_up = np.abs(m_up[idx_zero_up])
+        M_L_down = np.abs(m_down[idx_zero_down])
+
+        chi_num_up = np.gradient(m_up, h_up)
+        chi_num_down = np.gradient(m_down, h_down)
 
         chi_D = 0.0
-        chi_th = chi_D + (beta * M_L**2 * L**d) / (np.cosh(beta * h_up * M_L * L**d))**2
+        chi_th_up = chi_D + (beta * M_L_up**2 * L**d) / (np.cosh(beta * h_up * M_L_up * L**d))**2
+        chi_th_down = chi_D + (beta * M_L_down**2 * L**d) / (np.cosh(beta * h_down * M_L_down * L**d))**2
 
-        fig , (ax1,ax2) = plt.subplots(1,2,figsize=(10, 10))
+        fig , (ax1,ax2,ax3) = plt.subplots(1,3,figsize=(10, 10))
         ax1.plot(h_up,m_up,'k-',linewidth=0.65,label=f'h croissant: {h_up[0]:.2f} à {h_up[-1]:.2f}')
         ax1.plot(h_down,m_down,'r-',linewidth=0.65,label=f'h décroissant: {h_down[0]:.2f} à {h_down[-1]:.2f}')
         ax1.set_xlim(-amplitude_h, amplitude_h)
         ax1.set_ylim(-1.1, 1.1)
         ax1.set_xlabel("h",loc='right')
         ax1.set_ylabel(r'$ m $',loc='top')
-        ax1.set_title(f'Hystérésis de l\'aimantation \n réseau de taille L={L} - h={amplitude_h} à T={T}')
+        ax1.set_title(f'Hystérésis de l\'aimantation \n réseau de taille L={L} - h={amplitude_h} à T={T}', fontsize=8)
+        ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=1, fontsize=7)
         ax1.set_box_aspect(1)
         
-        ax2.plot(h_up,chi_num,'k-',linewidth=0.65,label=f'χ_L numérique (L={L})')
-        ax2.plot(h_up,chi_th,'r--',linewidth=1.0,label=f'χ_L Binder (M_L={M_L:.3f})')
+        ax2.plot(h_up,chi_num_up,'k-',linewidth=0.65,label=f'χ_L numérique (L={L})')
+        ax2.plot(h_up,chi_th_up,'r--',linewidth=1.0,label=f'χ_L Binder (M_L={M_L_up:.3f})')
         ax2.set_xlim(-amplitude_h, amplitude_h)
         ax2.set_xlabel("h",loc='right')
         ax2.set_ylabel(r'$ χ_L(h) $',loc='top')
-        ax2.set_title(f'χ_L(h) \n réseau de taille L={L} à T={T}')
+        ax2.set_title(f'χ_L(h) \n réseau de taille L={L} à T={T}', fontsize=8)
+        ax2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=1, fontsize=7)
         ax2.set_box_aspect(1)
+
+        ax3.plot(h_down,chi_num_down,'k-',linewidth=0.65,label=f'χ_L numérique (L={L})')
+        ax3.plot(h_down,chi_th_down,'r--',linewidth=1.0,label=f'χ_L Binder (M_L={M_L_down:.3f})')
+        ax3.set_xlim(-amplitude_h, amplitude_h)
+        ax3.set_xlabel("h",loc='right')
+        ax3.set_ylabel(r'$ χ_L(h) $',loc='top')
+        ax3.set_title(f'χ_L(h) \n réseau de taille L={L} à T={T}', fontsize=8)
+        ax3.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=1, fontsize=7)
+        ax3.set_box_aspect(1)
         
         plt.savefig(f'χ_L(h) et Hystérésis aimentation h={amplitude_h}_L={L}_T={T}.pdf', format="pdf",bbox_inches='tight')
         plt.show()
