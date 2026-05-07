@@ -12,13 +12,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
     remplissage_aleatoire_reseau,
-    MonteCarlo,
+    simulate_chi_at_H,
     format_time
 )
 temps_init = time.time()
 
 Lvalues=np.array([4,6,8,32]) #taille du réseau : L*L
-n = Lvalues*Lvalues #definit un pas de MonteCarlo
 J=1 #constante d'échange
 d = 2
 
@@ -36,26 +35,24 @@ for i, T in enumerate(T_s):
     #m=[] # aimantations pour chaque taille L
     for j, L in enumerate(Lvalues):
         Reseau = remplissage_aleatoire_reseau(L)
-        m_L=np.zeros(len(h))
+        m_L  = np.zeros(len(h))
+        chi_L = np.zeros(len(h))
 
-        n_sweeps = 200
-        n_steps = n_sweeps * L * L
-        
         for k in range(len(h)):
-            Reseau = MonteCarlo(n_steps, L, Reseau, T,J,h[k])
-            m_L[k]=np.mean(Reseau)
-        
-        m_up = m_L[:taille_h]
+            Reseau, m_L[k], chi_L[k] = simulate_chi_at_H(
+                Reseau, L, T, J, h[k], n_equilib=100, n_measure=50
+            )
+
+        m_up   = m_L[:taille_h]
         m_down = m_L[taille_h:]
+        chi_up   = chi_L[:taille_h]
+        chi_down = chi_L[taille_h:]
 
         idx_zero_up = np.argmin(np.abs(h_up))
         idx_zero_down = np.argmin(np.abs(h_down))
         
         M_L_up = np.abs(m_up[idx_zero_up])
         M_L_down = np.abs(m_down[idx_zero_down])
-
-        chi_num_up = np.gradient(m_up, h_up)
-        chi_num_down = np.gradient(m_down, h_down)
 
         chi_D = 0.0
         chi_th_up = chi_D + (beta * M_L_up**2 * L**d) / (np.cosh(beta * h_up * M_L_up * L**d))**2
@@ -72,7 +69,7 @@ for i, T in enumerate(T_s):
         ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=1, fontsize=7)
         ax1.set_box_aspect(1)
         
-        ax2.plot(h_up,chi_num_up,'k-',linewidth=0.65,label=f'χ_L numérique (L={L})')
+        ax2.plot(h_up,chi_up,'k-',linewidth=0.65,label=f'χ_L variance (L={L})')
         ax2.plot(h_up,chi_th_up,'r--',linewidth=1.0,label=f'χ_L Binder (M_L={M_L_up:.3f})')
         ax2.set_xlim(-amplitude_h, amplitude_h)
         ax2.set_xlabel("h",loc='right')
@@ -81,7 +78,7 @@ for i, T in enumerate(T_s):
         ax2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=1, fontsize=7)
         ax2.set_box_aspect(1)
 
-        ax3.plot(h_down,chi_num_down,'k-',linewidth=0.65,label=f'χ_L numérique (L={L})')
+        ax3.plot(h_down,chi_down,'k-',linewidth=0.65,label=f'χ_L variance (L={L})')
         ax3.plot(h_down,chi_th_down,'r--',linewidth=1.0,label=f'χ_L Binder (M_L={M_L_down:.3f})')
         ax3.set_xlim(-amplitude_h, amplitude_h)
         ax3.set_xlabel("h",loc='right')
