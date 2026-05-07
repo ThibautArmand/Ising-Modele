@@ -214,7 +214,7 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
         C : float - Chaleur spécifique
         chi : float - Susceptibilité magnétique
     """
-    N = L**2
+    N = L * L
     Reseau = remplissage_aleatoire_reseau(L)
     
     # Équilibration
@@ -329,19 +329,18 @@ def simulate_chi_at_H(Reseau, L, T, J, h, n_equilib=100, n_measure=50, decorrela
     """
     N = L * L
     Reseau = MonteCarlo(n_equilib * N, L, Reseau, T, J, h)
-
-    m_sum = 0.0
-    m2_sum = 0.0
-    for _ in range(n_measure):
+    magnetizations = np.empty(n_measure, dtype=np.float64)
+    
+    for i in range(n_measure):
         for _ in range(decorrelation_sweeps):
             Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        m = np.mean(Reseau)
-        m_sum += m
-        m2_sum += m * m
+        magnetizations[i] = calculate_magnetization(Reseau)
 
-    m_mean = m_sum / n_measure
-    m2_mean = m2_sum / n_measure
-    chi = (N / T) * (m2_mean - m_mean ** 2)
+    m_mean = np.mean(magnetizations)
+    m2_mean = np.mean(magnetizations**2)
+
+    chi = (N / T) * (m2_mean - m_mean ** 2)    
+    
     return Reseau, m_mean, chi
 
 
