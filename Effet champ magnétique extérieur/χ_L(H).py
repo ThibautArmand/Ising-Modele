@@ -55,8 +55,8 @@ for i, T in enumerate(T_s):
         M_L_down = np.abs(m_down[idx_zero_down])
 
         chi_D = 0.0
-        chi_th_up = chi_D + (beta * M_L_up**2 * L**d) / (np.cosh(beta * h_up * M_L_up * L**d))**2
-        chi_th_down = chi_D + (beta * M_L_down**2 * L**d) / (np.cosh(beta * h_down * M_L_down * L**d))**2
+        chi_th_up = chi_D + (beta * M_L_up * L**d) / (np.cosh(beta * h_up * M_L_up * L**d))**2
+        chi_th_down = chi_D + (beta * M_L_down * L**d) / (np.cosh(beta * h_down * M_L_down * L**d))**2
 
         fig , (ax1,ax2,ax3) = plt.subplots(1,3,figsize=(10, 10))
         ax1.plot(h_up,m_up,'k-',linewidth=0.65,label=f'h croissant: {h_up[0]:.2f} à {h_up[-1]:.2f}')
