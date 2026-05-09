@@ -190,6 +190,122 @@ def calculate_total_energy(Reseau, J=1.0, h=0.0):
     return E
 
 @njit
+def equilibrate_system(Reseau, L, T, J, h, n_equilibration):
+    """
+    Parameters
+    ----------
+    Reseau : [L,L]
+        Réseau de spins
+    L : int
+        Taille du réseau
+    T : float
+        Température
+    J : float
+        Constante d'échange
+    h : float
+        Champ magnétique
+    n_equilibration : int
+        Nombre de pas Monte Carlo pour l'équilibration
+    
+    Returns
+    -------
+    Reseau : [L,L]
+    """
+    N = L * L
+    for _ in range(n_equilibration):
+        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+    return Reseau
+
+@njit
+def collect_measurements(Reseau, L, T, J, h, n_measurements, decorrelation_sweeps, measure_energy=False):
+    """
+    Parameters
+    ----------
+    Reseau : [L,L]
+        Réseau de spins équilibré
+    L : int
+        Taille du réseau
+    T : float
+        Température
+    J : float
+        Constante d'échange
+    h : float
+        Champ magnétique
+    n_measurements : int
+        Nombre de mesures
+    decorrelation_sweeps : int
+        Nombre de sweeps entre mesures pour réduire les corrélations
+    measure_energy : bool
+        Si True, mesure également l'énergie
+    
+    Returns
+    -------
+    Reseau : [L,L]
+        Réseau final
+    magnetizations : array
+        Aimantations mesurées
+    energies : array or None
+        Énergies mesurées (si measure_energy=True, sinon None)
+    """
+    N = L * L
+    magnetizations = np.empty(n_measurements, dtype=np.float64)
+    energies = np.empty(n_measurements, dtype=np.float64) if measure_energy else None
+    
+    for i in range(n_measurements):
+        for _ in range(decorrelation_sweeps):
+            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+        magnetizations[i] = calculate_magnetization(Reseau)
+        if measure_energy:
+            energies[i] = calculate_total_energy(Reseau, J, h)
+    
+    return Reseau, magnetizations, energies
+
+@njit
+def calculate_energy_per_spin(E_mean, N):
+    """
+    Parameters
+    ----------
+    E_mean : float
+    N : int (L²)
+
+    Returns
+    -------
+    e : float
+    """
+    return E_mean / N
+
+@njit
+def calculate_susceptibility(N, T, M2_mean, M_mean):
+    """
+    Parameters
+    ----------
+    N : int (L²)
+    T : float
+    M2_mean : float
+    M_mean : float
+    
+    Returns
+    -------
+    chi : float
+    """
+    return (N / T) * (M2_mean - M_mean**2)
+
+@njit
+def calculate_specific_heat(T, E2_mean, E_mean):
+    """
+    Parameters
+    ----------
+    T : float
+    E2_mean : float
+    E_mean : float
+    
+    Returns
+    -------
+    C : float
+    """
+    return (1 / (T**2)) * (E2_mean - E_mean**2)
+
+@njit
 def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0, decorrelation_sweeps=1):
     """
     Parameters
@@ -218,39 +334,23 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
     Reseau = remplissage_aleatoire_reseau(L)
     
     # Équilibration
-    for _ in range(n_equilibration):
-        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+    Reseau = equilibrate_system(Reseau, L, T, J, h, n_equilibration)
     
-    energies = np.empty(n_measurements, dtype=np.float64)
-    magnetizations_signed = np.empty(n_measurements, dtype=np.float64)
-    magnetizations_abs = np.empty(n_measurements, dtype=np.float64)
-    
-    for i in range(n_measurements):
-        for _ in range(decorrelation_sweeps):
-            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        energies[i] = calculate_total_energy(Reseau, J, h)
-        M = calculate_magnetization(Reseau)
-        magnetizations_signed[i] = M
-        magnetizations_abs[i] = np.abs(M)
+    # Mesures
+    Reseau, magnetizations, energies = collect_measurements(
+        Reseau, L, T, J, h, n_measurements, decorrelation_sweeps, measure_energy=True
+    )
     
     # Calcul des moyennes et fluctuations
     E_mean = np.mean(energies)
     E2_mean = np.mean(energies**2)
-    M_mean_signed = np.mean(magnetizations_signed)
-    M2_mean_signed = np.mean(magnetizations_signed**2)
-    M_mean_abs = np.mean(magnetizations_abs)
-    
-    # Énergie par spin
-    e = E_mean / N
-    
-    # Aimantation par spin
-    m = M_mean_abs
-
-    # Susceptibilité magnétique χ(T)
-    chi = (N / T) * (M2_mean_signed - M_mean_signed**2)
-
-    # Chaleur spécifique  C(T)
-    C = (1 / (T**2)) * (E2_mean - E_mean**2)
+    M_mean = np.mean(magnetizations)
+    M2_mean = np.mean(magnetizations**2)
+    M_abs_mean = np.mean(np.abs(magnetizations))
+    e = calculate_energy_per_spin(E_mean, N)
+    m = M_abs_mean  # Aimantation par spin
+    chi = calculate_susceptibility(N, T, M2_mean, M_mean)
+    C = calculate_specific_heat(T, E2_mean, E_mean)
     
     return (e, m, C, chi)
 
@@ -268,6 +368,7 @@ def simulate_M2_M4(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0
     n_measurements : int
         Nombre de mesures
     J : float
+        Constante d'échange
     h : float
         Champ magnétique
     decorrelation_sweeps : int
@@ -276,20 +377,15 @@ def simulate_M2_M4(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0
     -------
     tuple : (M2_mean, M4_mean)
     """
-    N = L**2
     Reseau = remplissage_aleatoire_reseau(L)
     
     # Équilibration
-    for _ in range(n_equilibration):
-        Reseau = MonteCarlo(N, L, Reseau, T, J, h)
+    Reseau = equilibrate_system(Reseau, L, T, J, h, n_equilibration)
     
-    magnetizations = np.empty(n_measurements, dtype=np.float64)
-    
-    for i in range(n_measurements):
-        for _ in range(decorrelation_sweeps):
-            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        M = calculate_magnetization(Reseau)
-        magnetizations[i] = M
+    # Mesures
+    Reseau, magnetizations, _ = collect_measurements(
+        Reseau, L, T, J, h, n_measurements, decorrelation_sweeps, measure_energy=False
+    )
     
     M2_mean = np.mean(magnetizations**2)
     M4_mean = np.mean(magnetizations**4)
