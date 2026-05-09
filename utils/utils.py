@@ -392,54 +392,6 @@ def simulate_M2_M4(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0
     
     return (M2_mean, M4_mean)
 
-@njit
-def simulate_chi_at_H(Reseau, L, T, J, h, n_equilib=100, n_measure=50, decorrelation_sweeps=1):
-    """
-    Parameters
-    ----------
-    Reseau : [L,L]
-        Réseau de spins initial
-    L : int
-        Taille du réseau
-    T : float
-        Température
-    J : float
-        Constante d'échange
-    h : float
-        Champ magnétique appliqué
-    n_equilib : int
-        Nombre de pas pour l'équilibration
-    n_measure : int
-        Nombre de mesures pour calculer χ
-    decorrelation_sweeps : int
-        Nombre de sweeps pour assurer la décohérence entre les mesures
-
-    Returns
-    -------
-    Reseau : [L,L]
-        Réseau de spins final après simulation
-    m_mean : float
-        Aimantation par spin moyenne
-    chi : float
-        Susceptibilité magnétique
-    """
-    N = L * L
-    Reseau = MonteCarlo(n_equilib * N, L, Reseau, T, J, h)
-    magnetizations = np.empty(n_measure, dtype=np.float64)
-    
-    for i in range(n_measure):
-        for _ in range(decorrelation_sweeps):
-            Reseau = MonteCarlo(N, L, Reseau, T, J, h)
-        magnetizations[i] = calculate_magnetization(Reseau)
-
-    m_mean = np.mean(magnetizations)
-    m2_mean = np.mean(magnetizations**2)
-
-    chi = (N / T) * (m2_mean - m_mean ** 2)    
-    
-    return Reseau, m_mean, chi
-
-
 def format_time(seconds):
     """
     Parameters

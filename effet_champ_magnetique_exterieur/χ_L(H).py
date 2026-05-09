@@ -12,7 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import (
     remplissage_aleatoire_reseau,
-    simulate_chi_at_H,
+    equilibrate_system,
+    collect_measurements,
+    calculate_susceptibility,
     format_time
 )
 temps_init = time.time()
@@ -39,9 +41,19 @@ for i, T in enumerate(T_s):
         chi_L = np.zeros(len(h))
 
         for k in range(len(h)):
-            Reseau, m_L[k], chi_L[k] = simulate_chi_at_H(
-                Reseau, L, T, J, h[k], n_equilib=1000, n_measure=500
+            # Équilibration
+            Reseau = equilibrate_system(Reseau, L, T, J, h[k], n_equilibration=1000)
+            # Mesures
+            Reseau, magnetizations, _ = collect_measurements(
+                Reseau, L, T, J, h[k], 
+                n_measurements=500, 
+                decorrelation_sweeps=1, 
+                measure_energy=False
             )
+            m_L[k] = np.mean(magnetizations)
+            m2_mean = np.mean(magnetizations**2)
+            N = L * L
+            chi_L[k] = calculate_susceptibility(N, T, m2_mean, m_L[k])
 
         m_up   = m_L[:taille_h]
         m_down = m_L[taille_h:]
