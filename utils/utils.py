@@ -330,7 +330,7 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
         C : float - Chaleur spécifique
         chi : float - Susceptibilité magnétique
     """
-    N = L**2
+    N = L * L
     Reseau = remplissage_aleatoire_reseau(L)
     
     # Équilibration
