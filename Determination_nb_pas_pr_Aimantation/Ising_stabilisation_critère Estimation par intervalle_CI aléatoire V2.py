@@ -80,25 +80,8 @@ plt.xlabel("L",loc='right')
 plt.ylabel("nb pas",rotation=0,loc='top')
 plt.subplot(111).legend(loc='upper center',ncol=2, bbox_to_anchor=(0.5, -0.15))
 plt.title('Estimation du nombre de pas Monte Carlo à effectuer pour atteindre la stabilisation \n Condition Initiale aléatoire')
-plt.savefig('Estimation_pas MonteCarlo_CI Aléatoire.pdf', format="pdf",bbox_inches='tight')
+plt.savefig('V2-Estimation par intervalle_CI Aléatoire.pdf', format="pdf",bbox_inches='tight')
 plt.show()
-
-"""
-            
-            fig , (ax1,ax2) = plt.subplots(1,2,figsize=(10, 10))
-            ax1.plot(range(len(m_T)),m_T,'k-',linewidth=0.65,label=f'T={T_s[0]}')
-            ax1.set_xlabel("nb pas",loc='right')
-            ax1.set_ylabel(r'$ | m | $',loc='top')
-            ax1.set_title(f'Courbe aimantation \n Condition Initiale aléatoire, réseau de taille L={L} T={T}')
-            ax1.set_box_aspect(1)
-            
-            ax2.imshow(Reseau)
-            ax2.set_title(f'Configuration finale du réseau : L={L} T = {T}')
-            ax1.set_box_aspect(1)
-            
-            plt.savefig(f'Courbe Aimantation_CI Aléatoire_T={T}_L={L} n°{s}.pdf', format="pdf",bbox_inches='tight')
-            plt.show()
-"""
 
 temps_end = time.time()
 temps_diff = temps_end - temps_init
