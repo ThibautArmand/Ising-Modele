@@ -234,7 +234,7 @@ def collect_measurements(Reseau, L, T, J, h, n_measurements, decorrelation_sweep
     n_measurements : int
         Nombre de mesures
     decorrelation_sweeps : int
-        Nombre de sweeps entre mesures
+        Nombre de sweeps entre mesures pour réduire les corrélations
     measure_energy : bool
         Si True, mesure également l'énergie
     
@@ -259,6 +259,51 @@ def collect_measurements(Reseau, L, T, J, h, n_measurements, decorrelation_sweep
             energies[i] = calculate_total_energy(Reseau, J, h)
     
     return Reseau, magnetizations, energies
+
+@njit
+def calculate_energy_per_spin(E_mean, N):
+    """
+    Parameters
+    ----------
+    E_mean : float
+    N : int (L²)
+
+    Returns
+    -------
+    e : float
+    """
+    return E_mean / N
+
+@njit
+def calculate_susceptibility(N, T, M2_mean, M_mean):
+    """
+    Parameters
+    ----------
+    N : int (L²)
+    T : float
+    M2_mean : float
+    M_mean : float
+    
+    Returns
+    -------
+    chi : float
+    """
+    return (N / T) * (M2_mean - M_mean**2)
+
+@njit
+def calculate_specific_heat(T, E2_mean, E_mean):
+    """
+    Parameters
+    ----------
+    T : float
+    E2_mean : float
+    E_mean : float
+    
+    Returns
+    -------
+    C : float
+    """
+    return (1 / (T**2)) * (E2_mean - E_mean**2)
 
 @njit
 def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000, J=1.0, h=0.0, decorrelation_sweeps=1):
@@ -302,18 +347,10 @@ def simulate_single_temperature(L, T, n_equilibration=1000, n_measurements=1000,
     M_mean = np.mean(magnetizations)
     M2_mean = np.mean(magnetizations**2)
     M_abs_mean = np.mean(np.abs(magnetizations))
-    
-    # Énergie par spin
-    e = E_mean / N
-    
-    # Aimantation par spin
-    m = M_abs_mean
-
-    # Susceptibilité magnétique χ(T)
-    chi = (N / T) * (M2_mean - M_mean**2)
-
-    # Chaleur spécifique  C(T)
-    C = (1 / (T**2)) * (E2_mean - E_mean**2)
+    e = calculate_energy_per_spin(E_mean, N)
+    m = M_abs_mean  # Aimantation par spin
+    chi = calculate_susceptibility(N, T, M2_mean, M_mean)
+    C = calculate_specific_heat(T, E2_mean, E_mean)
     
     return (e, m, C, chi)
 
