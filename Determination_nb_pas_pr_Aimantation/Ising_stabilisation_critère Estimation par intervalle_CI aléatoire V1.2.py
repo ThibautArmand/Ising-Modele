@@ -23,7 +23,7 @@ Lvalues=np.array([16,32,64,128]) #valeurs de tailles du réseau : L*L
 nvalues = Lvalues*Lvalues #definit un pas de Monte Carlo pour chaque taille
 J=1 #constante d'échange
 h=0 #champ magnétique extérieur
-T_s = [0.5, 2.0, 3.5, 5.0]#températures du réseau
+T_s = [0.5,1.0,1.5,2.0]#températures du réseau
 Echantillon=50
 for j, L in enumerate(Lvalues):
     n=nvalues[j]
@@ -47,8 +47,8 @@ for j, L in enumerate(Lvalues):
         while (stab==0):
             µ=np.mean(m_T[len(m_T)-(Echantillon-1):]) # moyenne des 50 dernières valeurs
             σ=np.std(m_T[len(m_T)-(Echantillon-1):]) #Ecart-type des 50 dernières valeurs
-            m_inf=µ-2.576/np.sqrt(Echantillon)*σ #borne inférieur de l'intervalle
-            m_sup=µ+2.576/np.sqrt(Echantillon)*σ #borne superieur de l'intervalle
+            m_inf=µ-2.58/np.sqrt(Echantillon)*σ #borne inférieur de l'intervalle
+            m_sup=µ+2.58/np.sqrt(Echantillon)*σ #borne superieur de l'intervalle
             
             µ1=np.mean(m_T[len(m_T)-(2*Echantillon):len(m_T)-Echantillon-1]) # moyenne des 100 à 50 dernières valeurs
                         
@@ -82,15 +82,17 @@ for j, L in enumerate(Lvalues):
     plt.axvline(nb_pas[0],0,1,color='k',linewidth=0.65,ls='--')
     plt.plot(range(len(m[1])),m[1],'r-',linewidth=0.65,label=f'T={T_s[1]}')
     plt.axvline(nb_pas[1],0,1,color='r',linewidth=0.65,ls=':')
-    plt.plot(range(len(m[2])),m[2],'y-',linewidth=0.65,label=f'T={T_s[2]}')
-    plt.axvline(nb_pas[2],0,1,color='y',linewidth=0.65,ls='-.')
+    plt.plot(range(len(m[2])),m[2],'g-',linewidth=0.65,label=f'T={T_s[2]}')
+    plt.axvline(nb_pas[2],0,1,color='g',linewidth=0.65,ls='-.')
     plt.plot(range(len(m[3])),m[3],'b-',linewidth=0.65,label=f'T={T_s[3]}')
     plt.axvline(nb_pas[3],0,1,color='b',linewidth=0.65,ls='-')
-    
+    texte='traits verticaux=stabilisation estimée atteinte par l\'algorithme'
+    plt.scatter([], [], color="k", alpha=0, label=texte)
+    plt.legend()
     plt.xlabel("nb pas",loc='right')
     plt.ylabel(r'$ | m | $',loc='top')
     plt.subplot(111).legend(loc='upper center',ncol=2, bbox_to_anchor=(0.5, -0.15))
-    plt.title(f'Evolution selon critère Estimation par intervalle,Condition Initiale aléatoire de taille L={L}')
+    plt.title(f'Evolution selon critère Estimation par intervalle \n Condition Initiale aléatoire - Réseau de taille L={L}')
     plt.savefig(f'V1-2_Evolution-Estimation par intervalle_CI Aléatoire_L={L}.pdf', format="pdf",bbox_inches='tight')
     plt.show()
 
