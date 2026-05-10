@@ -109,7 +109,7 @@ if __name__ == "__main__":
     plt.plot(x_theory, chi_theory, 'k--', linewidth=2, label='Théorie Binder-Landau')
     plt.xlabel(r"$HL^2/J$")
     plt.ylabel(r"$\chi_L/L^2$")
-    plt.title(r"Susceptibilité scalée, $T=2.1$")
+    plt.title(r"Susceptibilité réduite, $T=2.1$")
     plt.legend()
     plt.grid(alpha=0.3)
     plt.tight_layout()
